@@ -6,8 +6,8 @@
  * @link       http://example.com
  * @since      1.0.0
  *
- * @package    Plugin_Name
- * @subpackage Plugin_Name/includes
+ * @package    Wordeley
+ * @subpackage Wordeley/includes
  */
 
 /**
@@ -16,11 +16,12 @@
  * This class defines all code necessary to run during the plugin's activation.
  *
  * @since      1.0.0
- * @package    Plugin_Name
- * @subpackage Plugin_Name/includes
+ * @package    Wordeley
+ * @subpackage Wordeley/includes
  * @author     Your Name <email@example.com>
  */
-class Plugin_Name_Activator {
+class Wordeley_Activator
+{
 
 	/**
 	 * Short Description. (use period)
@@ -29,8 +30,7 @@ class Plugin_Name_Activator {
 	 *
 	 * @since    1.0.0
 	 */
-	public static function activate() {
-
+	public static function activate()
+	{
 	}
-
 }
