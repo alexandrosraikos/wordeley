@@ -8,19 +8,19 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              http://example.com
+ * @link              http://araikos.gr
  * @since             1.0.0
  * @package           Wordeley
  *
  * @wordpress-plugin
- * Plugin Name:       WordPress Plugin Boilerplate
- * Plugin URI:        http://example.com/wordeley-uri/
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
+ * Plugin Name:       Wordeley
+ * Plugin URI:        https://www.araikos.gr/en/projects
+ * Description:       Integrate and showcase your Mendeley catalogue.
  * Version:           1.0.0
- * Author:            Your Name or Your Company
- * Author URI:        http://example.com/
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Author:            Alexandros Raikos
+ * Author URI:        https://www.araikos.gr/
+ * License:           The Unlicense
+ * License URI:       https://github.com/alexandrosraikos/wordeley/blob/master/LICENSE.md
  * Text Domain:       wordeley
  * Domain Path:       /languages
  */
@@ -35,7 +35,7 @@ if (!defined('WPINC')) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('PLUGIN_NAME_VERSION', '1.0.0');
+define('WORDELEY_VERSION', '1.0.0');
 
 /**
  * The code that runs during plugin activation.

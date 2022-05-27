@@ -69,8 +69,8 @@ class Wordeley
 	 */
 	public function __construct()
 	{
-		if (defined('PLUGIN_NAME_VERSION')) {
-			$this->version = PLUGIN_NAME_VERSION;
+		if (defined('WORDELEY_VERSION')) {
+			$this->version = WORDELEY_VERSION;
 		} else {
 			$this->version = '1.0.0';
 		}
