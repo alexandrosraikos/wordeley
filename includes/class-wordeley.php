@@ -164,6 +164,27 @@ class Wordeley
 
 		$this->loader->add_action('enqueue_block_editor_assets', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('enqueue_block_editor_assets', $plugin_admin, 'enqueue_scripts');
+
+		$this->loader->add_action('wp_ajax_wordeley_generate_access_token', $plugin_admin, 'generate_access_token');
+
+		/**
+		 * Cron hooks
+		 */
+
+		add_filter(
+			'cron_schedules',
+			function ($schedules) {
+				$schedules['almost_hourly'] = array(
+					'interval' => 3300,
+					'display' => 'Every 55 minutes (slightly under an hour).'
+				);
+				return $schedules;
+			}
+		);
+		$this->loader->add_action('wordeley_access_token_cron_handler_hook', $plugin_admin, 'generate_access_token');
+		if (!wp_next_scheduled('wordeley_access_token_cron_handler_hook')) {
+			wp_schedule_event(time(), 'almost_hourly', 'wordeley_access_token_cron_handler_hook');
+		}
 	}
 
 	/**
@@ -224,5 +245,119 @@ class Wordeley
 	public function get_version()
 	{
 		return $this->version;
+	}
+
+	/**
+	 * The generalized handler for AJAX calls.
+	 *
+	 * @param string $action The action slug used in WordPress.
+	 * @param callable $completion The callback for completed data.
+	 * @return void The function simply echoes the response to the
+	 *
+	 * @usedby All functions triggered by the WordPress AJAX handler.
+	 *
+	 * @author Alexandros Raikos <alexandros@araikos.gr>
+	 * @since 1.0.0
+	 */
+	public static function ajax_handler($completion): void
+	{
+		$action = sanitize_key($_POST['action']);
+
+		// Verify the action related nonce.
+		if (!wp_verify_nonce($_POST['nonce'], $action)) {
+			http_response_code(403);
+			die("Unverified request for action: " . $action);
+		}
+
+		try {
+			/** @var array $data The filtered $_POST data excluding WP specific keys. */
+			$data = $completion(array_filter($_POST, function ($key) {
+				return ($key != 'action' && $key != 'nonce');
+			}, ARRAY_FILTER_USE_KEY));
+
+			// Prepare the data and send.
+			if (empty($data)) {
+				http_response_code(200);
+				die();
+			} else {
+				$data = json_encode($data);
+				if ($data == false) {
+					throw new RuntimeException("There was an error while encoding the data to JSON.");
+				} else {
+					http_response_code(200);
+					die($data);
+				}
+			}
+		} catch (\Exception $e) {
+			http_response_code(500);
+			die($e->getMessage());
+		}
+	}
+
+	/**
+	 * Send a request to the Mendeley API.
+	 *
+	 * @param string $http_method The standardized HTTP method used for the request.
+	 * @param array $data The data to be sent according to the documented schema.
+	 * @param string $token The encoded user access token.
+	 * @param array $additional_headers Any additional HTTP headers for the request.
+	 *
+	 * @throws InvalidArgumentException For missing WordPress settings.
+	 * @throws ErrorException For connectivity and other API issues.
+	 *
+	 * @since   1.0.0
+	 * @author  Alexandros Raikos <alexandros@araikos.gr>
+	 */
+	public static function api_request($http_method, $uri, $data = [], $requesting_access = false)
+	{
+		// Retrieve access token.
+		$options = get_option('wordeley_plugin_settings');
+		$access_token = $options['api_access_token'] ?? null;
+		if (empty($access_token) && !$requesting_access) {
+			throw new InvalidArgumentException("You need to generate a Mendeley API access token in Wordeley settings.");
+		}
+
+		$encoded = http_build_query($data);
+
+		// Contact Mendeley API.
+		$curl = curl_init();
+		curl_setopt_array($curl, [
+			CURLOPT_URL => 'https://api.mendeley.com'  . $uri,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_CUSTOMREQUEST => $http_method,
+			CURLOPT_POSTFIELDS => $encoded,
+			CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded']
+		]);
+
+		// Get the data.
+		$response = curl_exec($curl);
+		$curl_http = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+		// Handle errors.
+		if (curl_errno($curl)) {
+			throw new Exception("Unable to reach the Mendeley API. More details: " . curl_error($curl));
+		}
+
+		curl_close($curl);
+		if ($curl_http != 200 && $curl_http != 201 && $curl_http != 204) {
+			throw new ErrorException(
+				"The Mendeley API returned an HTTP " . $curl_http . " status code. More information: " . $response ?? '',
+				$curl_http
+			);
+		} else {
+			if (isset($response)) {
+				if (is_string($response)) {
+					$decoded = json_decode($response, true);
+					if (json_last_error() === JSON_ERROR_NONE) {
+						return $decoded;
+					} else {
+						return $response;
+					}
+				}
+			} else {
+				curl_close($curl);
+				throw new ErrorException("There was no response.");
+			};
+		}
 	}
 }

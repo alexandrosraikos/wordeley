@@ -99,9 +99,20 @@ class Wordeley_Admin
          */
 
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wordeley-admin.js', array('jquery'), $this->version, false);
+        wp_localize_script($this->plugin_name, 'AdministrativeProperties', [
+            'AJAXEndpoint' => admin_url('admin-ajax.php'),
+            'GenerateAccessTokenNonce' => wp_create_nonce('wordeley_generate_access_token')
+        ]);
     }
 
 
+    /**
+     * Validates and sanitizes the submitted settings fields.
+     * 
+     * @since 1.0.0
+     * @author Alexandros Raikos <alexandros@araikos.gr>
+     * @return array
+     */
     function wordeley_validate_plugin_settings($input)
     {
         $output['application_id'] = sanitize_text_field($input['api_access_token']);
@@ -110,6 +121,13 @@ class Wordeley_Admin
         return $output;
     }
 
+    /**
+     * Registers the settings page sections and fields.
+     * 
+     * @since 1.0.0
+     * @author Alexandros Raikos <alexandros@araikos.gr>
+     * @return void
+     */
     function register_settings()
     {
 
@@ -151,6 +169,13 @@ class Wordeley_Admin
         );
     }
 
+    /**
+     * Adds the settings page link to the WordPress Dashboard sidebar.
+     * 
+     * @since 1.0.0
+     * @author Alexandros Raikos <alexandros@araikos.gr>
+     * @return void
+     */
     public function add_settings_page()
     {
         require_once plugin_dir_path(dirname(__FILE__)) . 'admin/partials/wordeley-admin-display.php';
@@ -162,5 +187,43 @@ class Wordeley_Admin
             'wordeley-plugin',
             'render_settings_page'
         );
+    }
+
+    /**
+     * Requests the generation of an API access token from the Mendeley API.
+     * 
+     * @since 1.0.0
+     * @author Alexandros Raikos <alexandros@araikos.gr>
+     * @return void
+     */
+    public function generate_access_token()
+    {
+        function update_access_token()
+        {
+            $options = get_option('wordeley_plugin_settings');
+            if (empty($options['application_id']) || empty($options['application_secret'])) {
+                throw new ErrorException("You need to enter your Mendeley application's credentials in Wordeley settings.");
+            }
+            $response = Wordeley::api_request(
+                'POST',
+                '/oauth/token',
+                [
+                    'grant_type' => 'client_credentials',
+                    'scope' => 'all',
+                    'client_id' => $options['application_id'],
+                    'client_secret' => $options['application_secret'],
+                ],
+                true
+            );
+            $options['api_access_token'] = $response['access_token'];
+            $options['api_access_token_expires_at'] = time() + $response['expires_in'];
+            update_option('wordeley_plugin_settings', $options);
+        }
+
+        if (wp_doing_ajax()) {
+            Wordeley::ajax_handler(update_access_token());
+        } else {
+            update_access_token();
+        }
     }
 }

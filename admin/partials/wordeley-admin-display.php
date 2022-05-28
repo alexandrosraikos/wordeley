@@ -40,7 +40,7 @@ function wordeley_plugin_application_id()
 ?>
     <input type="text" name="wordeley_plugin_settings[application_id]" value="<?php echo ((!empty($value)) ? $value : '') ?>" />
     <p class="description">
-        The name of the application registered in the Mendeley Developer Portal.
+        The numerical ID of the application registered in the Mendeley Developer Portal.
     </p>
 <?php
 }
@@ -62,11 +62,15 @@ function wordeley_plugin_api_access_token()
     $options = get_option('wordeley_plugin_settings');
     $value = $options['api_access_token'] ?? null;
     $enabled = !empty($options['application_id'] ?? null) && !empty($options['application_secret'] ?? null);
+
+    if (!empty($options['api_access_token_expires_at'])) {
+        $token_expires_in = gmdate("H:i:s", ($options['api_access_token_expires_at'] - time()));
+    }
 ?>
     <input type="text" readonly="readonly" name="wordeley_plugin_settings[api_access_token]" value="<?php echo ((!empty($value)) ? $value : '') ?>" />
     <button class="button" action="wordeley-generate-access-token" <?= (!$enabled) ? 'disabled' : '' ?>>Generate</button>
     <p class="description">
-        <?= (!$enabled) ? "The access token can be generated after entering your credentials." : "Your application's access token generated via the Mendeley API." ?>
+        <?= (!$enabled) ? "The access token can be generated after entering your credentials." : "Your application's access token generated via the Mendeley API, valid for " . $token_expires_in . " and it will be refreshed automatically." ?>
     </p>
 <?php
 }
