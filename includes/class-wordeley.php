@@ -6,7 +6,7 @@
  * A class definition that includes attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
- * @link       http://example.com
+ * @link       https://www.github.com/alexandrosraikos/wordeley
  * @since      1.0.0
  *
  * @package    Wordeley
@@ -25,7 +25,7 @@
  * @since      1.0.0
  * @package    Wordeley
  * @subpackage Wordeley/includes
- * @author     Your Name <email@example.com>
+ * @author     Alexandros Raikos <alexandros@araikos.gr>
  */
 class Wordeley
 {

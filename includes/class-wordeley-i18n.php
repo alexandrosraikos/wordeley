@@ -6,7 +6,7 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @link       http://example.com
+ * @link       https://www.github.com/alexandrosraikos/wordeley
  * @since      1.0.0
  *
  * @package    Wordeley
@@ -22,7 +22,7 @@
  * @since      1.0.0
  * @package    Wordeley
  * @subpackage Wordeley/includes
- * @author     Your Name <email@example.com>
+ * @author     Alexandros Raikos <alexandros@araikos.gr>
  */
 class Wordeley_i18n
 {

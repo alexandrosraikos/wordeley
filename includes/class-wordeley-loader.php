@@ -3,7 +3,7 @@
 /**
  * Register all actions and filters for the plugin
  *
- * @link       http://example.com
+ * @link       https://www.github.com/alexandrosraikos/wordeley
  * @since      1.0.0
  *
  * @package    Wordeley
@@ -19,7 +19,7 @@
  *
  * @package    Wordeley
  * @subpackage Wordeley/includes
- * @author     Your Name <email@example.com>
+ * @author     Alexandros Raikos <alexandros@araikos.gr>
  */
 class Wordeley_Loader
 {

@@ -5,7 +5,7 @@
  *
  * This file is used to markup the admin-facing aspects of the plugin.
  *
- * @link       http://example.com
+ * @link       https://www.github.com/alexandrosraikos/wordeley
  * @since      1.0.0
  *
  * @package    Wordeley
