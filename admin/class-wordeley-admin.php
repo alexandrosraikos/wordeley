@@ -104,8 +104,8 @@ class Wordeley_Admin
 
     function wordeley_validate_plugin_settings($input)
     {
-        $output['api_access_token'] = sanitize_text_field($input['api_access_token']);
-        $output['api_access_token'] = sanitize_text_field($input['api_access_token']);
+        $output['application_id'] = sanitize_text_field($input['api_access_token']);
+        $output['application_secret'] = sanitize_text_field($input['api_access_token']);
         $output['api_access_token'] = sanitize_text_field($input['api_access_token']);
         return $output;
     }
