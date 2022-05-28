@@ -162,9 +162,6 @@ class Wordeley
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 
-		$this->loader->add_action('enqueue_block_editor_assets', $plugin_admin, 'enqueue_styles');
-		$this->loader->add_action('enqueue_block_editor_assets', $plugin_admin, 'enqueue_scripts');
-
 		$this->loader->add_action('wp_ajax_wordeley_generate_access_token', $plugin_admin, 'generate_access_token');
 
 		/**
@@ -201,6 +198,7 @@ class Wordeley
 
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
+		$this->loader->add_action('init', $plugin_public, 'register_shortcodes');
 	}
 
 	/**
@@ -317,16 +315,19 @@ class Wordeley
 			throw new InvalidArgumentException("You need to generate a Mendeley API access token in Wordeley settings.");
 		}
 
-		$encoded = http_build_query($data);
-
 		// Contact Mendeley API.
 		$curl = curl_init();
 		curl_setopt_array($curl, [
 			CURLOPT_URL => 'https://api.mendeley.com'  . $uri,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_CUSTOMREQUEST => $http_method,
-			CURLOPT_POSTFIELDS => $encoded,
-			CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded']
+			CURLOPT_POSTFIELDS => http_build_query($data),
+			CURLOPT_HTTPHEADER => $requesting_access ?
+				['Content-Type: application/x-www-form-urlencoded'] :
+				[
+					'Authorization: Bearer ' . $options['api_access_token'],
+					'Accept: application/vnd.mendeley-document.1+json'
+				]
 		]);
 
 		// Get the data.
@@ -339,7 +340,7 @@ class Wordeley
 		}
 
 		curl_close($curl);
-		if ($curl_http != 200 && $curl_http != 201 && $curl_http != 204) {
+		if ($curl_http != 200 && $curl_http != 201 && $curl_http != 204 && $curl_http != 404) {
 			throw new ErrorException(
 				"The Mendeley API returned an HTTP " . $curl_http . " status code. More information: " . $response ?? '',
 				$curl_http

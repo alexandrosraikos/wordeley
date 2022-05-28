@@ -2,3 +2,97 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
+
+:root {
+  --wordeley-color-text-secondary: rgb(100, 100, 100);
+  --wordeley-color-background-secondary: rgb(245, 245, 245);
+  --wordeley-color-border: rgb(220, 220, 220);
+}
+
+/* Notices */
+
+.wordeley-notice {
+  color: rgb(0, 0, 56);
+  background-color: rgb(202, 229, 255);
+  padding: 20px;
+  border-radius: 10px;
+  font-size: small;
+  width: 100%;
+}
+
+.wordeley-notice.wordeley-error {
+  color: red;
+  background-color: rgb(255, 208, 208);
+}
+
+/* Catalogue View */
+
+.wordeley-catalogue {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* Catalogue View - Filters */
+
+.wordeley-catalogue > .wordeley-catalogue-filters {
+  margin: 0 10px 20px 0;
+  padding: 20px;
+  background-color: var(--wordeley-color-background-secondary);
+  border-radius: 10px;
+  flex-basis: 250px;
+  min-width: 250px;
+}
+
+.wordeley-catalogue > .wordeley-catalogue-filters > h2 {
+  font-size: 110%;
+}
+
+/* Catalogue View - List */
+
+.wordeley-catalogue > .wordeley-catalogue-list {
+  margin: 0 0 20px 10px;
+  width: 100%;
+}
+
+.wordeley-catalogue > .wordeley-catalogue-list > ul {
+  list-style-type: none;
+  margin: 0;
+  width: 100%;
+  padding: 0;
+}
+
+.wordeley-catalogue > .wordeley-catalogue-list > ul > li {
+  padding: 20px;
+  margin: 0 0 10px 0;
+}
+
+.wordeley-catalogue > .wordeley-catalogue-list > ul > li:not(:last-of-type) {
+  border-bottom: 0.5px solid var(--wordeley-color-border);
+}
+
+.wordeley-catalogue > .wordeley-catalogue-list > ul > li > h3 {
+  font-size: 110%;
+  margin-bottom: 10px;
+}
+
+.wordeley-catalogue > .wordeley-catalogue-list > ul > li > .metadata {
+  font-size: small;
+  color: var(--wordeley-color-text-secondary);
+  margin-bottom: 10px;
+}
+
+.wordeley-catalogue
+  > .wordeley-catalogue-list
+  > ul
+  > li
+  > .metadata
+  > *
+  > .label {
+  font-weight: bold;
+}
+
+.wordeley-catalogue > .wordeley-catalogue-list > ul > li > .information > a {
+  font-weight: bold;
+  color: var(--wordeley-color-text-secondary);
+  text-decoration: none;
+}

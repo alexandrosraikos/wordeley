@@ -100,4 +100,42 @@ class Wordeley_Public
 
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wordeley-public.js', array('jquery'), $this->version, false);
 	}
+
+	/**
+	 * Register the publicly visibly shortcodes.
+	 * 
+	 * @since	1.0.0
+	 * @author	Alexandros Raikos <alexandros@araikos.gr>
+	 */
+	public function register_shortcodes()
+	{
+		add_shortcode('wordeley', 'Wordeley_Public::catalogue_shortcode');
+	}
+
+	public static function catalogue_shortcode($atts)
+	{
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wordeley-public-display.php';
+
+		// Define attributes.
+		$atts = shortcode_atts(array(
+			'authors' => null
+		), $atts, 'bartag');
+
+		// Parse authors.
+		$authors = array_map(function ($author) {
+			return ltrim(rtrim($author));
+		}, explode(',', $atts['authors']));
+
+		// Create combined author query.
+		$query = 'author=' . str_replace(' ', '+', implode("&author=", $authors));
+
+		// Get related articles.
+		$articles = Wordeley::api_request(
+			'GET',
+			'/search/catalog' . '?sort=title&' . $query
+		);
+
+		// Print HTML.
+		return catalogue_shortcode_html($authors ?? null, $articles ?? null);
+	}
 }
