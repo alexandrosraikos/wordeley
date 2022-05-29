@@ -116,26 +116,22 @@ class Wordeley_Public
 	{
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wordeley-public-display.php';
 
-		// Define attributes.
-		$atts = shortcode_atts(array(
-			'authors' => null
-		), $atts, 'bartag');
+		$options = get_option('wordeley_plugin_settings');
+		$authors = $options['article_authors'];
 
-		// Parse authors.
-		$authors = array_map(function ($author) {
-			return ltrim(rtrim($author));
-		}, explode(',', $atts['authors']));
+		/**
+		 * For dynamic shortcode authors.
+		 */
+		// $atts = shortcode_atts(array(
+		// 	'authors' => null
+		// ), $atts, 'bartag');
 
-		// Create combined author query.
-		$query = 'author=' . str_replace(' ', '+', implode("&author=", $authors));
-
-		// Get related articles.
-		$articles = Wordeley::api_request(
-			'GET',
-			'/search/catalog' . '?sort=title&' . $query
-		);
+		// $authors = Wordeley::parse_authors($atts['authors']);
 
 		// Print HTML.
-		return catalogue_shortcode_html($authors ?? null, $articles ?? null);
+		return catalogue_shortcode_html(
+			$authors ?? null,
+			Wordeley::get_articles($authors ?? null)
+		);
 	}
 }

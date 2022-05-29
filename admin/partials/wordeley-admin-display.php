@@ -70,7 +70,24 @@ function wordeley_plugin_api_access_token()
     <input type="text" readonly="readonly" name="wordeley_plugin_settings[api_access_token]" value="<?php echo ((!empty($value)) ? $value : '') ?>" />
     <button class="button" action="wordeley-generate-access-token" <?= (!$enabled) ? 'disabled' : '' ?>>Generate</button>
     <p class="description">
-        <?= (!$enabled) ? "The access token can be generated after entering your credentials." : "Your application's access token generated via the Mendeley API, valid for " . $token_expires_in . " and it will be refreshed automatically." ?>
+        <?= (empty($value)) ? "The access token can be generated after entering your credentials." : "Your application's access token generated via the Mendeley API, valid for " . $token_expires_in . " and it will be refreshed automatically." ?>
+    </p>
+<?php
+}
+
+function wordeley_plugin_section_two()
+{
+    echo '<p>Fill in your catalogue options to start retrieving article data.</p>';
+}
+
+function wordeley_plugin_article_authors()
+{
+    $options = get_option('wordeley_plugin_settings');
+    $value = $options['article_authors'] ?? "";
+?>
+    <textarea name="wordeley_plugin_settings[article_authors]" cols=25"><?= $value ?></textarea>
+    <p class="description">
+        Use a comma (,) to separate multiple author entries.
     </p>
 <?php
 }

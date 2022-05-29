@@ -115,9 +115,14 @@ class Wordeley_Admin
      */
     function wordeley_validate_plugin_settings($input)
     {
+        // Sanitize text fields.
         $output['application_id'] = sanitize_text_field($input['api_access_token']);
         $output['application_secret'] = sanitize_text_field($input['api_access_token']);
         $output['api_access_token'] = sanitize_text_field($input['api_access_token']);
+
+        // Parse author list.
+        $output['article_authors'] = $input['article_authors'];
+
         return $output;
     }
 
@@ -166,6 +171,22 @@ class Wordeley_Admin
             'wordeley_plugin_api_access_token',
             'wordeley_plugin',
             'section_one'
+        );
+
+
+        add_settings_section(
+            'section_two',
+            'Catalog Filtering',
+            'wordeley_plugin_section_two',
+            'wordeley_plugin'
+        );
+
+        add_settings_field(
+            'article_authors',
+            'Authors',
+            'wordeley_plugin_article_authors',
+            'wordeley_plugin',
+            'section_two'
         );
     }
 

@@ -14,6 +14,36 @@ use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
  * @subpackage Wordeley/public/partials
  */
 
+function article_filters_html(array $authors = null)
+{
+    if (empty($authors) || empty($authors[0])) {
+        return show_alert('No authors were configured.');
+    } else {
+
+        // Author values.
+        $checkboxes = "";
+        foreach ($authors as $author) {
+            $checkboxes .= <<<HTML
+                <label>
+                    <input type="checkbox" name="author[]" id="" checked/> {$author}
+                </label>
+            HTML;
+        };
+
+        // Year values.
+        $current_year = date("Y");
+
+        // Print form.
+        return <<<HTML
+            <form>
+                {$checkboxes}
+                <input type="number" name="starting-year" min="1970" max="{$current_year}">
+                <input type="number" name="ending-year" min="1970" max="{$current_year}">
+            </form>
+        HTML;
+    }
+}
+
 function article_list_html(array $articles = null)
 {
     if (empty($articles)) {
@@ -60,11 +90,13 @@ function article_list_html(array $articles = null)
 function catalogue_shortcode_html($authors = null, $articles = null)
 {
     $list = article_list_html($articles ?? null);
+    $filters = article_filters_html($authors ?? null);
 
     return <<<HTML
         <div class="wordeley-catalogue">
             <div class="wordeley-catalogue-filters">
                 <h2>Filters</h2>
+                {$filters}
             </div>
             <div class="wordeley-catalogue-list">
                 <ul>

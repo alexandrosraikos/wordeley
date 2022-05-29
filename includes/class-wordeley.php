@@ -13,6 +13,8 @@
  * @subpackage Wordeley/includes
  */
 
+require_once(ABSPATH . 'wp-admin/includes/file.php');
+
 /**
  * The core plugin class.
  *
@@ -75,6 +77,9 @@ class Wordeley
 			$this->version = '1.0.0';
 		}
 		$this->plugin_name = 'wordeley';
+		if (!defined('WORDLEY_FILE_STORE')) {
+			define('WORDELEY_FILE_STORE', trailingslashit(wp_upload_dir()['basedir']) . 'wordeley/');
+		}
 
 		$this->load_dependencies();
 		$this->set_locale();
@@ -168,20 +173,20 @@ class Wordeley
 		 * Cron hooks
 		 */
 
-		add_filter(
-			'cron_schedules',
-			function ($schedules) {
-				$schedules['almost_hourly'] = array(
-					'interval' => 3300,
-					'display' => 'Every 55 minutes (slightly under an hour).'
-				);
-				return $schedules;
-			}
-		);
-		$this->loader->add_action('wordeley_access_token_cron_handler_hook', $plugin_admin, 'generate_access_token');
-		if (!wp_next_scheduled('wordeley_access_token_cron_handler_hook')) {
-			wp_schedule_event(time(), 'almost_hourly', 'wordeley_access_token_cron_handler_hook');
-		}
+		// add_filter(
+		// 	'cron_schedules',
+		// 	function ($schedules) {
+		// 		$schedules['almost_hourly'] = array(
+		// 			'interval' => 3300,
+		// 			'display' => 'Every 55 minutes (slightly under an hour).'
+		// 		);
+		// 		return $schedules;
+		// 	}
+		// );
+		// $this->loader->add_action('wordeley_access_token_cron_handler_hook', $plugin_admin, 'generate_access_token');
+		// if (!wp_next_scheduled('wordeley_access_token_cron_handler_hook')) {
+		// 	wp_schedule_event(time(), 'almost_hourly', 'wordeley_access_token_cron_handler_hook');
+		// }
 	}
 
 	/**
@@ -360,5 +365,81 @@ class Wordeley
 				throw new ErrorException("There was no response.");
 			};
 		}
+	}
+
+	public static function delete_article_cache()
+	{
+		// Prepare filesystem access.
+		global $wp_filesystem;
+
+		if (!is_file(WORDELEY_FILE_STORE . "/articles.json")) {
+			unlink(WORDELEY_FILE_STORE . '/articles.json');
+		}
+	}
+
+	public static function update_article_cache(array $articles)
+	{
+		// Prepare filesystem access.
+		global $wp_filesystem;
+		WP_Filesystem();
+
+		// Clear old cache and save new content.
+		Wordeley::delete_article_cache();
+		$wp_filesystem->put_contents(WORDELEY_FILE_STORE . '/articles.json', json_encode($articles), 0644);
+
+		// Save timestamp.
+		$options = get_option('wordeley_plugin_settings');
+		$options['article_cache_last_updated_at'] = time();
+		update_option('wordeley_plugin_settings', $options);
+	}
+
+
+	public static function retrieve_articles(array $authors)
+	{
+		$articles = [];
+
+		foreach ($authors as $author) {
+			// Get related articles.
+			$response = Wordeley::api_request(
+				'GET',
+				'/search/catalog' . '?sort=title&authors=' . $author . '&limit=100'
+			);
+			$articles = array_merge($articles, $response);
+		}
+
+		return $articles;
+	}
+
+	public static function get_articles(array $authors = null)
+	{
+		if (empty($authors)) {
+			return [];
+		} else {
+			if (is_file(WORDELEY_FILE_STORE . "/articles.json")) {
+				// Get from cache.
+				$articles = json_decode(file_get_contents(WORDELEY_FILE_STORE . "/articles.json"));
+			} else {
+				// Retrieve from API and update cache.
+				$articles = Wordeley::retrieve_articles($authors);
+				Wordeley::update_article_cache($articles);
+			}
+
+			// Return relevant authors only.
+			return array_filter($articles, function ($article) use ($authors) {
+				return count(
+					array_intersect($authors, array_map(function ($author) {
+						return $author['first_name'] . ' ' . $author['last_name'];
+					}, $article['authors']))
+				) > 0;
+			});
+		}
+	}
+
+	public static function parse_authors(string $serialized)
+	{
+		// Parse comma separated authors string.
+		return array_map(function ($author) {
+			return ltrim(rtrim($author));
+		}, explode(',', $serialized));
 	}
 }
