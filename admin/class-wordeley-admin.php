@@ -210,6 +210,29 @@ class Wordeley_Admin
         );
     }
 
+
+    public static function update_access_token()
+    {
+        $options = get_option('wordeley_plugin_settings');
+        if (empty($options['application_id']) || empty($options['application_secret'])) {
+            throw new ErrorException("You need to enter your Mendeley application's credentials in Wordeley settings.");
+        }
+        $response = Wordeley::api_request(
+            'POST',
+            '/oauth/token',
+            [
+                'grant_type' => 'client_credentials',
+                'scope' => 'all',
+                'client_id' => $options['application_id'],
+                'client_secret' => $options['application_secret'],
+            ],
+            true
+        );
+        $options['api_access_token'] = $response['access_token'];
+        $options['api_access_token_expires_at'] = time() + $response['expires_in'];
+        update_option('wordeley_plugin_settings', $options);
+    }
+
     /**
      * Requests the generation of an API access token from the Mendeley API.
      * 
@@ -219,32 +242,11 @@ class Wordeley_Admin
      */
     public function generate_access_token()
     {
-        function update_access_token()
-        {
-            $options = get_option('wordeley_plugin_settings');
-            if (empty($options['application_id']) || empty($options['application_secret'])) {
-                throw new ErrorException("You need to enter your Mendeley application's credentials in Wordeley settings.");
-            }
-            $response = Wordeley::api_request(
-                'POST',
-                '/oauth/token',
-                [
-                    'grant_type' => 'client_credentials',
-                    'scope' => 'all',
-                    'client_id' => $options['application_id'],
-                    'client_secret' => $options['application_secret'],
-                ],
-                true
-            );
-            $options['api_access_token'] = $response['access_token'];
-            $options['api_access_token_expires_at'] = time() + $response['expires_in'];
-            update_option('wordeley_plugin_settings', $options);
-        }
 
         if (wp_doing_ajax()) {
-            Wordeley::ajax_handler(update_access_token());
+            Wordeley::ajax_handler(Wordeley_Admin::update_access_token());
         } else {
-            update_access_token();
+            Wordeley_Admin::update_access_token();
         }
     }
 }

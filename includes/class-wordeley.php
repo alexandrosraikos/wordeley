@@ -372,7 +372,7 @@ class Wordeley
 		// Prepare filesystem access.
 		global $wp_filesystem;
 
-		if (!is_file(WORDELEY_FILE_STORE . "/articles.json")) {
+		if (is_file(WORDELEY_FILE_STORE . "/articles.json")) {
 			unlink(WORDELEY_FILE_STORE . '/articles.json');
 		}
 	}
@@ -385,6 +385,9 @@ class Wordeley
 
 		// Clear old cache and save new content.
 		Wordeley::delete_article_cache();
+		if (!file_exists(WORDELEY_FILE_STORE)) {
+			mkdir(WORDELEY_FILE_STORE, 0777, true);
+		}
 		$wp_filesystem->put_contents(WORDELEY_FILE_STORE . '/articles.json', json_encode($articles), 0644);
 
 		// Save timestamp.
@@ -396,13 +399,14 @@ class Wordeley
 
 	public static function retrieve_articles(array $authors)
 	{
+		$author = urlencode($authors[0]);
 		$articles = [];
 
 		foreach ($authors as $author) {
 			// Get related articles.
 			$response = Wordeley::api_request(
 				'GET',
-				'/search/catalog' . '?sort=title&authors=' . $author . '&limit=100'
+				'/search/catalog?author=' . urlencode($author) . '&limit=100'
 			);
 			$articles = array_merge($articles, $response);
 		}
@@ -417,7 +421,7 @@ class Wordeley
 		} else {
 			if (is_file(WORDELEY_FILE_STORE . "/articles.json")) {
 				// Get from cache.
-				$articles = json_decode(file_get_contents(WORDELEY_FILE_STORE . "/articles.json"));
+				$articles = json_decode(file_get_contents(WORDELEY_FILE_STORE . "/articles.json"), true);
 			} else {
 				// Retrieve from API and update cache.
 				$articles = Wordeley::retrieve_articles($authors);
@@ -428,7 +432,7 @@ class Wordeley
 			return array_filter($articles, function ($article) use ($authors) {
 				return count(
 					array_intersect($authors, array_map(function ($author) {
-						return $author['first_name'] . ' ' . $author['last_name'];
+						return ((empty($author['first_name']) ? '' : $author['first_name'] . ' ')) . ($author['last_name'] ?? '');
 					}, $article['authors']))
 				) > 0;
 			});

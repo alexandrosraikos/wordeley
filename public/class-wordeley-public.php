@@ -117,7 +117,7 @@ class Wordeley_Public
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wordeley-public-display.php';
 
 		$options = get_option('wordeley_plugin_settings');
-		$authors = $options['article_authors'];
+		$authors = Wordeley::parse_authors($options['article_authors']);
 
 		/**
 		 * For dynamic shortcode authors.

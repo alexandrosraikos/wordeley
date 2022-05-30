@@ -53,24 +53,33 @@ function article_list_html(array $articles = null)
         foreach ($articles as $article) {
             $authors = "";
             foreach ($article['authors'] as $key => $author) {
-                if (!empty($author['scopus_author_id'])) {
-                    $authors .= <<<HTML
+                if (!empty($author['first_name']) && !empty($author['last_name'])) {
+                    if (!empty($author['scopus_author_id'])) {
+                        $authors .= <<<HTML
                         <a href="https://www.scopus.com/authid/detail.uri?authorId={$author['scopus_author_id']}">{$author['first_name']} {$author['last_name']}</a>
                     HTML;
-                } else {
-                    $authors .= $author['first_name'] . " " . $author['last_name'];
+                    } else {
+                        $authors .= $author['first_name'] . " " . $author['last_name'];
+                    }
                 }
                 if ($key != count($article['authors'])) {
                     $authors .= ", ";
                 }
             }
+
+            $metadata_source = (!empty($article['source'])) ? <<<HTML
+                <span class="source"><span class="label">Source:</span> {$article['source']}</span>
+                HTML : '';
+            $metadata_doi = (!empty($article['identifiers']['doi'])) ? <<<HTML
+                <span class="doi"><span class="label">DOI:</span> {$article['identifiers']['doi']}</span>
+                HTML : '';
             $list .= <<<HTML
                 <li>
                     <h3>{$article['title']}</h3>
                     <div class="metadata">
                         <span class="authors"><span class="label">Authors:</span> {$authors}</span>
-                        <span class="source"><span class="label">Source:</span> {$article['source']}</span>
-                        <span class="doi"><span class="label">DOI:</span> {$article['identifiers']['doi']}</span>
+                        {$metadata_source}
+                        {$metadata_doi}        
                         <span class="year"><span class="label">Year:</span> {$article['year']}</span>
                     </div>
                     <div class="information">
