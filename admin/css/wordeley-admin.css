@@ -6,3 +6,8 @@
 .wordeley-error {
   color: red;
 }
+
+.button.is-destructive {
+  color: #cf2e2e;
+  border-color: #cf2e2e;
+}

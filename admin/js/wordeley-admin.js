@@ -157,4 +157,36 @@ $(document).ready(() => {
 			}
 		)
 	})
+
+	/**
+	 * Refresh the cache.
+	 */
+	$('button[action="wordeley-refresh-cache"]').click(e => {
+		e.preventDefault();
+		makeWPRequest(
+			e.target,
+			'wordeley_refresh_cache',
+			AdministrativeProperties.RefreshCacheNonce,
+			{},
+			() => {
+				window.location.reload();
+			}
+		)
+	})
+
+	/**
+	 * Clear the cache.
+	 */
+	$('button[action="wordeley-clear-cache"]').click(e => {
+		e.preventDefault();
+		makeWPRequest(
+			e.target,
+			'wordeley_clear_cache',
+			AdministrativeProperties.ClearCacheNonce,
+			{},
+			() => {
+				window.location.reload();
+			}
+		)
+	})
 })

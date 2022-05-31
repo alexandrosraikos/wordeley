@@ -75,6 +75,18 @@ function wordeley_plugin_api_access_token()
 <?php
 }
 
+function wordeley_plugin_api_access_token_automatic()
+{
+    $options = get_option('wordeley_plugin_settings');
+    $checked = ($options['api_access_token_automatic'] ?? '') == 'on' ? 'checked' : '';
+?>
+    <input type="checkbox" name="wordeley_plugin_settings[api_access_token_automatic]" <?= $checked ?> />
+    <p>
+        The token will be refreshed automatically every hour.
+    </p>
+<?php
+}
+
 function wordeley_plugin_section_two()
 {
     echo '<p>Fill in your catalogue options to start retrieving article data.</p>';
@@ -85,9 +97,59 @@ function wordeley_plugin_article_authors()
     $options = get_option('wordeley_plugin_settings');
     $value = $options['article_authors'] ?? "";
 ?>
-    <textarea name="wordeley_plugin_settings[article_authors]" cols=25"><?= $value ?></textarea>
-    <p class="description">
+    <textarea name="wordeley_plugin_settings[article_authors]" cols="20" rows="10""><?= $value ?></textarea>
+    <p class=" description">
         Use a comma (,) to separate multiple author entries.
+    </p>
+<?php
+}
+
+
+function wordeley_plugin_section_three()
+{
+    echo '<p>The cache is automatically refreshed every 30 days.</p>';
+}
+
+function wordeley_plugin_refresh_cache()
+{
+    if (file_exists(WORDELEY_FILE_STORE . 'articles.json')) {
+        $last_modified = filemtime(WORDELEY_FILE_STORE . 'articles.json');
+    }
+?>
+    <?php
+    if (empty($last_modified)) {
+    ?>
+        <button action="wordeley-refresh-cache" class="button">Build Cache</button>
+        <p>Click to build the article cache manually.</p>
+    <?php
+    } else {
+    ?>
+        <button action="wordeley-refresh-cache" class="button">Refresh Cache</button>
+        <p>Click to refresh the article cache manually. Last modified <?= date('d-m-Y h:m', $last_modified) ?></p>
+    <?php
+    }
+    ?>
+<?php
+}
+
+function wordeley_plugin_delete_cache()
+{
+?>
+    <button action="wordeley-clear-cache" class="button is-destructive">Clear Cache</button>
+    <p>Click to clear the article cache manually.</p>
+<?php
+}
+
+
+
+function wordeley_plugin_refresh_cache_automatic()
+{
+    $options = get_option('wordeley_plugin_settings');
+    $checked = ($options['refresh_cache_automatic'] ?? '') == 'on' ? 'checked' : '';
+?>
+    <input type="checkbox" name="wordeley_plugin_settings[refresh_cache_automatic]" <?= $checked ?> />
+    <p>
+        The cache will be refreshed automatically every 30 days.
     </p>
 <?php
 }

@@ -101,7 +101,9 @@ class Wordeley_Admin
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wordeley-admin.js', array('jquery'), $this->version, false);
         wp_localize_script($this->plugin_name, 'AdministrativeProperties', [
             'AJAXEndpoint' => admin_url('admin-ajax.php'),
-            'GenerateAccessTokenNonce' => wp_create_nonce('wordeley_generate_access_token')
+            'GenerateAccessTokenNonce' => wp_create_nonce('wordeley_generate_access_token'),
+            'RefreshCacheNonce' => wp_create_nonce('wordeley_refresh_cache'),
+            'ClearCacheNonce' => wp_create_nonce('wordeley_clear_cache')
         ]);
     }
 
@@ -122,6 +124,12 @@ class Wordeley_Admin
 
         // Parse author list.
         $output['article_authors'] = $input['article_authors'];
+        $options = get_option('woreley_plugin_settings');
+        if (!empty($options['article_authors'])) {
+            if ($options['article_authors'] !== $output['article_authors']) {
+                Wordeley::retrieve_articles($output['article_authors']);
+            }
+        }
 
         return $output;
     }
@@ -173,6 +181,13 @@ class Wordeley_Admin
             'section_one'
         );
 
+        add_settings_field(
+            'api_access_token_automatic',
+            'Refresh token automatically',
+            'wordeley_plugin_api_access_token_automatic',
+            'wordeley_plugin',
+            'section_one'
+        );
 
         add_settings_section(
             'section_two',
@@ -187,6 +202,37 @@ class Wordeley_Admin
             'wordeley_plugin_article_authors',
             'wordeley_plugin',
             'section_two'
+        );
+
+        add_settings_section(
+            'section_three',
+            'Manage Cache',
+            'wordeley_plugin_section_three',
+            'wordeley_plugin'
+        );
+
+        add_settings_field(
+            'refresh_cache',
+            'Refresh cache',
+            'wordeley_plugin_refresh_cache',
+            'wordeley_plugin',
+            'section_three'
+        );
+
+        add_settings_field(
+            'delete_cache',
+            'Delete cache',
+            'wordeley_plugin_delete_cache',
+            'wordeley_plugin',
+            'section_three'
+        );
+
+        add_settings_field(
+            'refresh_cache_automatic',
+            'Refresh cache automatically',
+            'wordeley_plugin_refresh_cache_automatic',
+            'wordeley_plugin',
+            'section_three'
         );
     }
 
@@ -242,11 +288,27 @@ class Wordeley_Admin
      */
     public function generate_access_token()
     {
-
         if (wp_doing_ajax()) {
-            Wordeley::ajax_handler(Wordeley_Admin::update_access_token());
+            Wordeley::ajax_handler(
+                function () {
+                    Wordeley_Admin::update_access_token();
+                }
+            );
         } else {
+            // TODO: check for api_access_token_automatic == 'on' when doing cron.
             Wordeley_Admin::update_access_token();
         }
+    }
+
+
+    public function refresh_cache()
+    {
+        // TODO: check for refresh_cache_automatic == 'on' when doing cron.
+        Wordeley::update_article_cache();
+    }
+
+    public function clear_cache()
+    {
+        Wordeley::delete_article_cache();
     }
 }

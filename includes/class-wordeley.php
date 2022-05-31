@@ -168,25 +168,44 @@ class Wordeley
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 
 		$this->loader->add_action('wp_ajax_wordeley_generate_access_token', $plugin_admin, 'generate_access_token');
+		$this->loader->add_action('wp_ajax_wordeley_refresh_cache', $plugin_admin, 'refresh_cache');
+		$this->loader->add_action('wp_ajax_wordeley_clear_cache', $plugin_admin, 'clear_cache');
 
 		/**
 		 * Cron hooks
 		 */
 
-		// add_filter(
-		// 	'cron_schedules',
-		// 	function ($schedules) {
-		// 		$schedules['almost_hourly'] = array(
-		// 			'interval' => 3300,
-		// 			'display' => 'Every 55 minutes (slightly under an hour).'
-		// 		);
-		// 		return $schedules;
-		// 	}
-		// );
-		// $this->loader->add_action('wordeley_access_token_cron_handler_hook', $plugin_admin, 'generate_access_token');
-		// if (!wp_next_scheduled('wordeley_access_token_cron_handler_hook')) {
-		// 	wp_schedule_event(time(), 'almost_hourly', 'wordeley_access_token_cron_handler_hook');
-		// }
+		// Re-generate access token.
+		add_filter(
+			'cron_schedules',
+			function ($schedules) {
+				$schedules['almost_hourly'] = array(
+					'interval' => 3300,
+					'display' => 'Every 55 minutes (slightly under an hour).'
+				);
+				return $schedules;
+			}
+		);
+		$this->loader->add_action('wordeley_access_token_cron_handler_hook', $plugin_admin, 'generate_access_token');
+		if (!wp_next_scheduled('wordeley_access_token_cron_handler_hook')) {
+			wp_schedule_event(time(), 'almost_hourly', 'wordeley_access_token_cron_handler_hook');
+		}
+
+		// Refresh cache.
+		add_filter(
+			'cron_schedules',
+			function ($schedules) {
+				$schedules['monthly'] = array(
+					'interval' => 2592000,
+					'display' => 'Every month.'
+				);
+				return $schedules;
+			}
+		);
+		$this->loader->add_action('wordeley_refresh_cache_cron_handler_hook', $plugin_admin, 'refresh_cache');
+		if (!wp_next_scheduled('wordeley_refresh_cache_cron_handler_hook')) {
+			wp_schedule_event(time(), 'monthly', 'wordeley_refresh_cache_cron_handler_hook');
+		}
 	}
 
 	/**
@@ -377,8 +396,12 @@ class Wordeley
 		}
 	}
 
-	public static function update_article_cache(array $articles)
+	public static function update_article_cache(array $articles = null)
 	{
+		if (empty($articles)) {
+			$articles = Wordeley::retrieve_articles(Wordeley::parse_authors());
+		}
+
 		// Prepare filesystem access.
 		global $wp_filesystem;
 		WP_Filesystem();
@@ -389,18 +412,15 @@ class Wordeley
 			mkdir(WORDELEY_FILE_STORE, 0777, true);
 		}
 		$wp_filesystem->put_contents(WORDELEY_FILE_STORE . '/articles.json', json_encode($articles), 0644);
-
-		// Save timestamp.
-		$options = get_option('wordeley_plugin_settings');
-		$options['article_cache_last_updated_at'] = time();
-		update_option('wordeley_plugin_settings', $options);
 	}
 
 
 	public static function retrieve_articles(array $authors)
 	{
-		$author = urlencode($authors[0]);
 		$articles = [];
+		if (is_string($authors)) {
+			$authors = Wordeley::parse_authors($authors);
+		}
 
 		foreach ($authors as $author) {
 			// Get related articles.
@@ -411,21 +431,24 @@ class Wordeley
 			$articles = array_merge($articles, $response);
 		}
 
+		Wordeley::update_article_cache($articles);
 		return $articles;
 	}
 
-	public static function get_articles(array $authors = null)
+	public static function get_articles(array|string $authors = null)
 	{
 		if (empty($authors)) {
 			return [];
 		} else {
+			if (is_string($authors)) {
+				$authors = Wordeley::parse_authors($authors);
+			}
 			if (is_file(WORDELEY_FILE_STORE . "/articles.json")) {
 				// Get from cache.
 				$articles = json_decode(file_get_contents(WORDELEY_FILE_STORE . "/articles.json"), true);
 			} else {
 				// Retrieve from API and update cache.
 				$articles = Wordeley::retrieve_articles($authors);
-				Wordeley::update_article_cache($articles);
 			}
 
 			// Return relevant authors only.
@@ -439,8 +462,13 @@ class Wordeley
 		}
 	}
 
-	public static function parse_authors(string $serialized)
+	public static function parse_authors(string $serialized = null)
 	{
+		if (empty($serialized)) {
+			$options = get_option('wordeley_plugin_settings');
+			$serialized = $options['article_authors'] ?? "";
+		}
+
 		// Parse comma separated authors string.
 		return array_map(function ($author) {
 			return ltrim(rtrim($author));
