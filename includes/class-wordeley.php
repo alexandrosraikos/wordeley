@@ -399,7 +399,7 @@ class Wordeley
 	public static function update_article_cache(array $articles = null)
 	{
 		if (empty($articles)) {
-			$articles = Wordeley::retrieve_articles(Wordeley::parse_authors());
+			$articles = Wordeley::retrieve_articles();
 		}
 
 		// Prepare filesystem access.
@@ -415,12 +415,10 @@ class Wordeley
 	}
 
 
-	public static function retrieve_articles(array $authors)
+	public static function retrieve_articles()
 	{
 		$articles = [];
-		if (is_string($authors)) {
-			$authors = Wordeley::parse_authors($authors);
-		}
+		$authors = Wordeley::parse_authors();
 
 		foreach ($authors as $author) {
 			// Get related articles.
@@ -435,31 +433,40 @@ class Wordeley
 		return $articles;
 	}
 
-	public static function get_articles(array|string $authors = null)
+	public static function get_articles(array $authors = null, int|null $page = 0, int|null $articles_per_page = 10)
 	{
 		if (empty($authors)) {
-			return [];
-		} else {
-			if (is_string($authors)) {
-				$authors = Wordeley::parse_authors($authors);
-			}
-			if (is_file(WORDELEY_FILE_STORE . "/articles.json")) {
-				// Get from cache.
-				$articles = json_decode(file_get_contents(WORDELEY_FILE_STORE . "/articles.json"), true);
-			} else {
-				// Retrieve from API and update cache.
-				$articles = Wordeley::retrieve_articles($authors);
-			}
-
-			// Return relevant authors only.
-			return array_filter($articles, function ($article) use ($authors) {
-				return count(
-					array_intersect($authors, array_map(function ($author) {
-						return ((empty($author['first_name']) ? '' : $author['first_name'] . ' ')) . ($author['last_name'] ?? '');
-					}, $article['authors']))
-				) > 0;
-			});
+			$authors = Wordeley::parse_authors();
 		}
+		if (is_file(WORDELEY_FILE_STORE . "/articles.json")) {
+			// Get from cache.
+			$raw_articles = json_decode(file_get_contents(WORDELEY_FILE_STORE . "/articles.json"), true);
+		} else {
+			// Retrieve from API and update cache.
+			$raw_articles = Wordeley::retrieve_articles();
+		}
+
+		// Return relevant authors only.
+		$raw_articles = array_filter($raw_articles, function ($article) use ($authors) {
+			return count(
+				array_intersect($authors, array_map(function ($author) {
+					return ((empty($author['first_name']) ? '' : $author['first_name'] . ' ')) . ($author['last_name'] ?? '');
+				}, $article['authors']))
+			) > 0;
+		});
+
+		if (empty($articles_per_page)) {
+			$articles_per_page = 10;
+		}
+		if (empty($page)) {
+			$page = 0;
+		}
+
+		$articles = [];
+		$articles['content'] = array_slice($raw_articles, $articles_per_page * $page, ($articles_per_page * $page) + ($articles_per_page - 1));
+		$articles['page'] = ceil(count($raw_articles) / $articles_per_page);
+
+		return $articles;
 	}
 
 	public static function parse_authors(string $serialized = null)

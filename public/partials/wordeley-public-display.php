@@ -25,7 +25,7 @@ function article_filters_html(array $authors = null)
         foreach ($authors as $author) {
             $checkboxes .= <<<HTML
                 <label>
-                    <input type="checkbox" name="author[]" id="" checked/> {$author}
+                    <input type="checkbox" name="authors[]" id="" checked/> {$author}
                 </label>
             HTML;
         };
@@ -35,10 +35,28 @@ function article_filters_html(array $authors = null)
 
         // Print form.
         return <<<HTML
-            <form>
+            <form method="get">
+                <h4>Authors</h4>
                 {$checkboxes}
+                <h4>Years</h4>
+                <label>
+                    From
                 <input type="number" name="starting-year" min="1970" max="{$current_year}">
-                <input type="number" name="ending-year" min="1970" max="{$current_year}">
+                </label>
+                <label>
+                    To
+                    <input type="number" name="ending-year" min="1970" max="{$current_year}">
+                </label>
+                <h4>View options</h4>
+                <label>
+                Articles per page
+                <select name="articles-per-page">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
+                </label>
+                <button type="submit">Submit</button>
             </form>
         HTML;
     }
@@ -46,11 +64,12 @@ function article_filters_html(array $authors = null)
 
 function article_list_html(array $articles = null)
 {
-    if (empty($articles)) {
+    // TODO: @alexandrosraikos paginate with $articles['page'];
+    if (empty($articles['content'])) {
         return show_alert('No articles were found matching your criteria.', 'notice');
     } else {
         $list = "";
-        foreach ($articles as $article) {
+        foreach ($articles['content'] as $article) {
             $authors = "";
             foreach ($article['authors'] as $key => $author) {
                 if (!empty($author['first_name']) && !empty($author['last_name'])) {

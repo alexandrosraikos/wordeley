@@ -9,5 +9,5 @@ import * as Wordeley from '../../admin/js/wordeley-admin'
 
 
 $(document).ready(() => {
-
+    // TODO @alexandrosraikos: Handle form URL construction.
 })

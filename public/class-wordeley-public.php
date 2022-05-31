@@ -112,26 +112,23 @@ class Wordeley_Public
 		add_shortcode('wordeley', 'Wordeley_Public::catalogue_shortcode');
 	}
 
-	public static function catalogue_shortcode($atts)
+	public static function catalogue_shortcode()
 	{
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wordeley-public-display.php';
 
 		$options = get_option('wordeley_plugin_settings');
 		$authors = Wordeley::parse_authors($options['article_authors']);
 
-		/**
-		 * For dynamic shortcode authors.
-		 */
-		// $atts = shortcode_atts(array(
-		// 	'authors' => null
-		// ), $atts, 'bartag');
-
-		// $authors = Wordeley::parse_authors($atts['authors']);
+		$articles = Wordeley::get_articles(
+			$_GET['authors'] ?? null,
+			$_GET['article-page'] ?? null,
+			$_GET['articles-per-page'] ?? null
+		);
 
 		// Print HTML.
 		return catalogue_shortcode_html(
 			$authors ?? null,
-			Wordeley::get_articles($authors ?? null)
+			$articles
 		);
 	}
 }
