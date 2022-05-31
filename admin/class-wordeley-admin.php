@@ -294,21 +294,39 @@ class Wordeley_Admin
                     Wordeley_Admin::update_access_token();
                 }
             );
-        } else {
-            // TODO: check for api_access_token_automatic == 'on' when doing cron.
-            Wordeley_Admin::update_access_token();
+        } elseif (wp_doing_cron()) {
+            $options = get_option('wordeley_plugin_settings');
+            if ($options['api_access_token_automatic'] ?? 'off' == 'on') {
+                Wordeley_Admin::update_access_token();
+            }
         }
     }
 
 
     public function refresh_cache()
     {
-        // TODO: check for refresh_cache_automatic == 'on' when doing cron.
-        Wordeley::update_article_cache();
+        if (wp_doing_ajax()) {
+            Wordeley::ajax_handler(
+                function () {
+                    Wordeley::update_article_cache();
+                }
+            );
+        } elseif (wp_doing_cron()) {
+            $options = get_option('wordeley_plugin_settings');
+            if ($options['refresh_cache_automatic'] ?? 'off' == 'on') {
+                Wordeley_Admin::update_access_token();
+            }
+        }
     }
 
     public function clear_cache()
     {
-        Wordeley::delete_article_cache();
+        if (wp_doing_ajax()) {
+            Wordeley::ajax_handler(
+                function () {
+                    Wordeley::delete_article_cache();
+                }
+            );
+        }
     }
 }

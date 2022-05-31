@@ -68,7 +68,9 @@ function wordeley_plugin_api_access_token()
     }
 ?>
     <input type="text" readonly="readonly" name="wordeley_plugin_settings[api_access_token]" value="<?php echo ((!empty($value)) ? $value : '') ?>" />
-    <button class="button" action="wordeley-generate-access-token" <?= (!$enabled) ? 'disabled' : '' ?>>Generate</button>
+    <button class="button" action="wordeley-generate-access-token" <?= (!$enabled) ? 'disabled' : '' ?>>
+        <?= (empty($value)) ? 'Generate' : 'Refresh' ?>
+    </button>
     <p class="description">
         <?= (empty($value)) ? "The access token can be generated after entering your credentials." : "Your application's access token generated via the Mendeley API, valid for " . $token_expires_in . " and it will be refreshed automatically." ?>
     </p>
@@ -114,6 +116,7 @@ function wordeley_plugin_refresh_cache()
 {
     if (file_exists(WORDELEY_FILE_STORE . 'articles.json')) {
         $last_modified = filemtime(WORDELEY_FILE_STORE . 'articles.json');
+        $last_modified = get_date_from_gmt(date('Y-m-d H:i:s', $last_modified), 'd-m-Y H:i:s');
     }
 ?>
     <?php
@@ -125,7 +128,7 @@ function wordeley_plugin_refresh_cache()
     } else {
     ?>
         <button action="wordeley-refresh-cache" class="button">Refresh Cache</button>
-        <p>Click to refresh the article cache manually. Last modified <?= date('d-m-Y h:m', $last_modified) ?></p>
+        <p>Click to refresh the article cache manually. Last modified <?= $last_modified ?></p>
     <?php
     }
     ?>

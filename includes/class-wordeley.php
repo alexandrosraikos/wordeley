@@ -179,16 +179,16 @@ class Wordeley
 		add_filter(
 			'cron_schedules',
 			function ($schedules) {
-				$schedules['almost_hourly'] = array(
-					'interval' => 3300,
-					'display' => 'Every 55 minutes (slightly under an hour).'
+				$schedules['hourly'] = array(
+					'interval' => 3600,
+					'display' => 'Every 60 minutes.'
 				);
 				return $schedules;
 			}
 		);
 		$this->loader->add_action('wordeley_access_token_cron_handler_hook', $plugin_admin, 'generate_access_token');
 		if (!wp_next_scheduled('wordeley_access_token_cron_handler_hook')) {
-			wp_schedule_event(time(), 'almost_hourly', 'wordeley_access_token_cron_handler_hook');
+			wp_schedule_event(time(), 'hourly', 'wordeley_access_token_cron_handler_hook');
 		}
 
 		// Refresh cache.
