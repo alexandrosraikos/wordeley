@@ -14,7 +14,7 @@ use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
  * @subpackage Wordeley/public/partials
  */
 
-function article_filters_html(array $authors = null)
+function article_filters_html(array $authors = null, array $oldest_year = null)
 {
     if (empty($authors) || empty($authors[0])) {
         return show_alert('No authors were configured.');
@@ -31,6 +31,7 @@ function article_filters_html(array $authors = null)
         };
 
         // Year values.
+        $oldest_year = $oldest_year ?? 1975;
         $current_year = date("Y");
 
         // Print form.
@@ -41,13 +42,13 @@ function article_filters_html(array $authors = null)
                 <h4>Years</h4>
                 <label>
                     From
-                <input type="number" name="starting-year" min="1970" max="{$current_year}">
+                <input type="number" name="starting-year" min="{$oldest_year}" max="{$current_year}" placeholder="{$oldest_year}">
                 </label>
                 <label>
                     To
-                    <input type="number" name="ending-year" min="1970" max="{$current_year}">
+                    <input type="number" name="ending-year" min="1970" max="{$current_year}" placeholder="${current_year}">
                 </label>
-                <h4>View options</h4>
+                <h4>View</h4>
                 <label>
                 Articles per page
                 <select name="articles-per-page">
@@ -64,7 +65,6 @@ function article_filters_html(array $authors = null)
 
 function article_list_html(array $articles = null)
 {
-    // TODO: @alexandrosraikos paginate with $articles['page'];
     if (empty($articles['content'])) {
         return show_alert('No articles were found matching your criteria.', 'notice');
     } else {
@@ -107,6 +107,7 @@ function article_list_html(array $articles = null)
                 </li>
             HTML;
         }
+
         return $list;
     }
 }
@@ -120,16 +121,33 @@ function catalogue_shortcode_html($authors = null, $articles = null)
     $list = article_list_html($articles ?? null);
     $filters = article_filters_html($authors ?? null);
 
+    // Append page selector.
+    global $wp;
+    $page_selector = "";
+    $current_url = home_url($wp->request);
+    for ($i = 1; $i < $articles['total_pages']; $i++) {
+        $page_url = $current_url . '?article-page=' . $i;
+        $html_class = ($_GET['article-page'] == $i) ? 'active' : '';
+        $page_selector .= <<<HTML
+            <li><a href="{$page_url}" class="{$html_class}">$i</a></li>
+        HTML;
+    }
+    $page_selector = <<<HTML
+        <ul class="wordeley-pagination">
+            {$page_selector}
+        </ul>
+    HTML;
+
     return <<<HTML
         <div class="wordeley-catalogue">
             <div class="wordeley-catalogue-filters">
-                <h2>Filters</h2>
                 {$filters}
             </div>
             <div class="wordeley-catalogue-list">
                 <ul>
                     {$list}
                 </ul>
+                {$page_selector}
             </div>
         </div>  
     HTML;

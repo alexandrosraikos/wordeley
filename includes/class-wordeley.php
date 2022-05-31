@@ -456,15 +456,18 @@ class Wordeley
 		});
 
 		if (empty($articles_per_page)) {
-			$articles_per_page = 10;
+			$articles_per_page = 5;
 		}
 		if (empty($page)) {
 			$page = 0;
 		}
 
-		$articles = [];
-		$articles['content'] = array_slice($raw_articles, $articles_per_page * $page, ($articles_per_page * $page) + ($articles_per_page - 1));
-		$articles['page'] = ceil(count($raw_articles) / $articles_per_page);
+		$starting_index = $articles_per_page * $page;
+		$articles = [
+			'content' => array_slice($raw_articles, $starting_index, $articles_per_page),
+			'total_pages' => ceil(count($raw_articles) / $articles_per_page)
+		];
+
 
 		return $articles;
 	}
