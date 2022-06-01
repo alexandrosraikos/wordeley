@@ -14,7 +14,7 @@ use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
  * @subpackage Wordeley/public/partials
  */
 
-function article_filters_html(array $authors = null, int $oldest_year = null)
+function article_filters_html(array $authors = null, int $oldest_year = null, array $author_article_total = null)
 {
     if (empty($authors) || empty($authors[0])) {
         return show_alert('No authors were configured.');
@@ -22,13 +22,17 @@ function article_filters_html(array $authors = null, int $oldest_year = null)
 
         // Author values.
         $checkboxes = "";
+        $total_articles = 0;
+        $active_authors = $_GET['authors'] ?? $authors;
         foreach ($authors as $author) {
-            $checked = in_array($author, $_GET['authors']) ? 'checked' : '';
+            $checked = in_array($author, $active_authors ?? []) ? 'checked' : '';
+            $author_label = !empty($author_article_total) ? ($author . ' (' . $author_article_total[$author] . ')') : $author;
             $checkboxes .= <<<HTML
                 <label>
-                    <input type="checkbox" name="authors[]" value="{$author}" id="" {$checked} /> {$author}
+                    <input type="checkbox" name="authors[]" value="{$author}" id="" {$checked} /> {$author_label}
                 </label>
             HTML;
+            $total_articles += $author_article_total[$author];
         };
 
         // Year values.
@@ -45,9 +49,14 @@ function article_filters_html(array $authors = null, int $oldest_year = null)
             HTML;
         }
 
+        // Search value.
+        $search_value = $_GET['article-search'] ?? '';
+
         // Print form.
         return <<<HTML
             <form action="" method="get">
+                <h4>Search</h4>
+                <input type="text" name="article-search" value="{$search_value}" placeholder="Type a term"/>
                 <h4>Authors</h4>
                 {$checkboxes}
                 <h4>Years</h4>
@@ -125,10 +134,14 @@ function article_list_html(array $articles = null)
  * The HTML view of the article catalogue.
  * @since  1.0.0
  */
-function catalogue_shortcode_html($authors = null, $articles = null)
+function catalogue_shortcode_html($authors = null, $articles = null, $author_statistics = null, int $total_articles = 0)
 {
     $list = article_list_html($articles ?? null);
-    $filters = article_filters_html($authors ?? null, $articles['oldest_year'] ?? 1975);
+    $filters = article_filters_html(
+        $authors ?? null,
+        $articles['oldest_year'] ?? 1975,
+        $author_statistics ?? null
+    );
 
     // Append page selector.
     global $wp;
@@ -153,6 +166,9 @@ function catalogue_shortcode_html($authors = null, $articles = null)
                 {$filters}
             </div>
             <div class="wordeley-catalogue-list">
+                <div class="wordeley-total-article-label">
+                    {$total_articles} total articles
+                </div>
                 <ul>
                     {$list}
                 </ul>

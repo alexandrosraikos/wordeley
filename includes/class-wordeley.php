@@ -433,28 +433,48 @@ class Wordeley
 		return $articles;
 	}
 
-	public static function get_articles(array $authors = null, int|null $page = 0, int|null $articles_per_page = 10)
+	public static function filter_articles_by_author(array $articles, array $authors)
 	{
-		if (empty($authors)) {
-			$authors = Wordeley::parse_authors();
-		}
-		if (is_file(WORDELEY_FILE_STORE . "/articles.json")) {
-			// Get from cache.
-			$raw_articles = json_decode(file_get_contents(WORDELEY_FILE_STORE . "/articles.json"), true);
-		} else {
-			// Retrieve from API and update cache.
-			$raw_articles = Wordeley::retrieve_articles();
-		}
-
-		// Return relevant authors only.
-		$raw_articles = array_filter($raw_articles, function ($article) use ($authors) {
+		return array_filter($articles, function ($article) use ($authors) {
 			return count(
 				array_intersect($authors, array_map(function ($author) {
 					return ((empty($author['first_name']) ? '' : $author['first_name'] . ' ')) . ($author['last_name'] ?? '');
 				}, $article['authors']))
 			) > 0;
 		});
+	}
 
+	public static function get_articles(array $authors = null, int|null $page = 0, int|null $articles_per_page = 10, string|null $search_term = null)
+	{
+		// Get requested authors.
+		if (empty($authors)) {
+			$authors = Wordeley::parse_authors();
+		}
+
+		// Get all articles.
+		if (is_file(WORDELEY_FILE_STORE . "/articles.json")) {
+			// Get from cache.
+			$total_articles = json_decode(file_get_contents(WORDELEY_FILE_STORE . "/articles.json"), true);
+		} else {
+			// Retrieve from API and update cache.
+			$total_articles = Wordeley::retrieve_articles();
+		}
+
+		// Filter relevant articles by author.
+		$filtered_articles = Wordeley::filter_articles_by_author($total_articles, $authors);
+
+		// Filter relevant articles by search term.
+		if (!empty($search_term)) {
+			$filtered_articles = array_filter(
+				$filtered_articles,
+				function ($article) use ($search_term) {
+					$search_result = stripos($article['title'], $search_term);
+					return $search_result !== false;
+				}
+			);
+		}
+
+		// Initialize pagination.
 		if (empty($articles_per_page)) {
 			$articles_per_page = 5;
 		}
@@ -462,17 +482,26 @@ class Wordeley
 			$page = 0;
 		}
 
+		// Create article page.
 		$starting_index = $articles_per_page * $page;
-		$paged_articles = array_slice($raw_articles, $starting_index, $articles_per_page);
+		$paged_articles = array_slice($filtered_articles, $starting_index, $articles_per_page);
+
+		// Calculate article years.
 		$article_years = array_map(function ($article) {
 			return $article['year'];
 		}, $paged_articles);
 		sort($article_years);
 
+		$author_article_total = [];
+		foreach (Wordeley::parse_authors() as $author) {
+			$author_article_total[$author] = count(Wordeley::filter_articles_by_author($total_articles, [$author]));
+		}
 		$articles = [
 			'content' =>  $paged_articles,
-			'total_pages' => ceil(count($raw_articles) / $articles_per_page),
-			'oldest_year' => $article_years[0] ?? 1975
+			'total_pages' => ceil(count($filtered_articles) / $articles_per_page),
+			'oldest_year' => $article_years[0] ?? 1975,
+			'author_statistics' => $author_article_total,
+			'total_articles' => count($filtered_articles)
 		];
 
 		return $articles;

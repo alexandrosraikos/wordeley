@@ -47,6 +47,17 @@
   font-size: 110%;
 }
 
+/* Catalogue View - List Header */
+.wordeley-catalogue .wordeley-total-article-label {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  color: var(--wordeley-color-text-secondary);
+  font-weight: bold;
+  font-size: 14px;
+}
+
 /* Catalogue View - List */
 
 .wordeley-catalogue > .wordeley-catalogue-list {
