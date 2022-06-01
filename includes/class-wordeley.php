@@ -463,9 +463,16 @@ class Wordeley
 		}
 
 		$starting_index = $articles_per_page * $page;
+		$paged_articles = array_slice($raw_articles, $starting_index, $articles_per_page);
+		$article_years = array_map(function ($article) {
+			return $article['year'];
+		}, $paged_articles);
+		sort($article_years);
+
 		$articles = [
-			'content' => array_slice($raw_articles, $starting_index, $articles_per_page),
-			'total_pages' => ceil(count($raw_articles) / $articles_per_page)
+			'content' =>  $paged_articles,
+			'total_pages' => ceil(count($raw_articles) / $articles_per_page),
+			'oldest_year' => $article_years[0]
 		];
 
 

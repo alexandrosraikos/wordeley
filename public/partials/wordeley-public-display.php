@@ -14,7 +14,7 @@ use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
  * @subpackage Wordeley/public/partials
  */
 
-function article_filters_html(array $authors = null, array $oldest_year = null)
+function article_filters_html(array $authors = null, int $oldest_year = null)
 {
     if (empty($authors) || empty($authors[0])) {
         return show_alert('No authors were configured.');
@@ -23,9 +23,10 @@ function article_filters_html(array $authors = null, array $oldest_year = null)
         // Author values.
         $checkboxes = "";
         foreach ($authors as $author) {
+            $checked = in_array($author, $_GET['authors']) ? 'checked' : '';
             $checkboxes .= <<<HTML
                 <label>
-                    <input type="checkbox" name="authors[]" id="" checked/> {$author}
+                    <input type="checkbox" name="authors[]" value="{$author}" id="" {$checked} /> {$author}
                 </label>
             HTML;
         };
@@ -36,7 +37,7 @@ function article_filters_html(array $authors = null, array $oldest_year = null)
 
         // Print form.
         return <<<HTML
-            <form method="get">
+            <form action="" method="get">
                 <h4>Authors</h4>
                 {$checkboxes}
                 <h4>Years</h4>
@@ -119,7 +120,7 @@ function article_list_html(array $articles = null)
 function catalogue_shortcode_html($authors = null, $articles = null)
 {
     $list = article_list_html($articles ?? null);
-    $filters = article_filters_html($authors ?? null);
+    $filters = article_filters_html($authors ?? null, $articles['oldest_year'] ?? 1975);
 
     // Append page selector.
     global $wp;
@@ -127,7 +128,7 @@ function catalogue_shortcode_html($authors = null, $articles = null)
     $current_url = home_url($wp->request);
     for ($i = 1; $i < $articles['total_pages']; $i++) {
         $page_url = $current_url . '?article-page=' . $i;
-        $html_class = ($_GET['article-page'] == $i) ? 'active' : '';
+        $html_class = ($_GET['article-page'] ?? '1' == $i) ? 'active' : '';
         $page_selector .= <<<HTML
             <li><a href="{$page_url}" class="{$html_class}">$i</a></li>
         HTML;
