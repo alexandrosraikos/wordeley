@@ -119,10 +119,11 @@ class Wordeley_Public
 		$options = get_option('wordeley_plugin_settings');
 		$authors = Wordeley::parse_authors($options['article_authors']);
 
+
 		$articles = Wordeley::get_articles(
 			$_GET['authors'] ?? null,
-			$_GET['article-page'] ?? null,
-			$_GET['articles-per-page'] ?? null
+			empty($_GET['article-page']) ? null : $_GET['article-page'],
+			empty($_GET['articles-per-page']) ? null : $_GET['articles-per-page']
 		);
 
 		// Print HTML.

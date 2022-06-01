@@ -35,6 +35,16 @@ function article_filters_html(array $authors = null, int $oldest_year = null)
         $oldest_year = $oldest_year ?? 1975;
         $current_year = date("Y");
 
+        // Page size selector options. 
+        $page_size_options = [10, 25, 50];
+        $page_size_options_html = "";
+        for ($j = 0; $j <= count($page_size_options) - 1; $j++) {
+            $selected = ($page_size_options[$j] == ($_GET['articles-per-page'] ?? 10)) ? 'selected' : '';
+            $page_size_options_html .= <<<HTML
+            <option value="{$page_size_options[$j]}" {$selected}>{$page_size_options[$j]}</option>
+            HTML;
+        }
+
         // Print form.
         return <<<HTML
             <form action="" method="get">
@@ -53,9 +63,7 @@ function article_filters_html(array $authors = null, int $oldest_year = null)
                 <label>
                 Articles per page
                 <select name="articles-per-page">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
+                    {$page_size_options_html}
                 </select>
                 </label>
                 <button type="submit">Submit</button>

@@ -472,9 +472,8 @@ class Wordeley
 		$articles = [
 			'content' =>  $paged_articles,
 			'total_pages' => ceil(count($raw_articles) / $articles_per_page),
-			'oldest_year' => $article_years[0]
+			'oldest_year' => $article_years[0] ?? 1975
 		];
-
 
 		return $articles;
 	}
