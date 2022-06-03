@@ -1,5 +1,7 @@
 <?php
 
+// TODO @alexandrosraikos: Add Greek localisations.
+
 /**
  * The file that defines the core plugin class
  *
