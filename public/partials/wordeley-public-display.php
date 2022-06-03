@@ -120,7 +120,7 @@ function article_list_html(array $articles = null)
                         <span class="year"><span class="label">Year:</span> {$article['year']}</span>
                     </div>
                     <div class="information">
-                        <a href="{$article['link']}">View more information &rarr;</a>
+                        <a href="{$article['link']}" target="blank">View more information &rarr;</a>
                     </div>
                 </li>
             HTML;
