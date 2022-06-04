@@ -6,5 +6,4 @@
  */
 
 $(document).ready(() => {
-    // TODO @alexandrosraikos: Handle form URL construction.
 })
