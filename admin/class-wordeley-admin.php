@@ -183,7 +183,7 @@ class Wordeley_Admin
 
         add_settings_field(
             'api_access_token_automatic',
-            'Refresh token automatically',
+            __('Refresh token automatically', 'wordeley'),
             'wordeley_plugin_api_access_token_automatic',
             'wordeley_plugin',
             'section_one'
@@ -191,14 +191,14 @@ class Wordeley_Admin
 
         add_settings_section(
             'section_two',
-            'Catalog Filtering',
+            __('Catalog Filtering', 'wordeley'),
             'wordeley_plugin_section_two',
             'wordeley_plugin'
         );
 
         add_settings_field(
             'article_authors',
-            'Authors',
+            __('Authors', 'wordeley'),
             'wordeley_plugin_article_authors',
             'wordeley_plugin',
             'section_two'
@@ -206,14 +206,14 @@ class Wordeley_Admin
 
         add_settings_section(
             'section_three',
-            'Manage Cache',
+            __('Manage Cache', 'wordeley'),
             'wordeley_plugin_section_three',
             'wordeley_plugin'
         );
 
         add_settings_field(
             'refresh_cache',
-            'Refresh cache',
+            __('Refresh cache', 'wordeley'),
             'wordeley_plugin_refresh_cache',
             'wordeley_plugin',
             'section_three'
@@ -221,7 +221,7 @@ class Wordeley_Admin
 
         add_settings_field(
             'delete_cache',
-            'Delete cache',
+            __('Delete cache', 'wordeley'),
             'wordeley_plugin_delete_cache',
             'wordeley_plugin',
             'section_three'
@@ -229,7 +229,7 @@ class Wordeley_Admin
 
         add_settings_field(
             'refresh_cache_automatic',
-            'Refresh cache automatically',
+            __('Refresh cache automatically', 'wordeley'),
             'wordeley_plugin_refresh_cache_automatic',
             'wordeley_plugin',
             'section_three'

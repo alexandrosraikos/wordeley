@@ -15,8 +15,8 @@
 function render_settings_page()
 {
 ?>
-    <h1>Wordeley Settings</h1>
-    <p>This is the options page for the Wordeley plugin.</p>
+    <h1><?= __("Wordeley Settings", 'wordeley') ?></h1>
+    <p><?= __("This is the options page for the Wordeley plugin.", 'wordeley') ?></p>
     <form action="options.php" method="post">
         <?php
         settings_fields('wordeley_plugin_settings');
@@ -30,7 +30,7 @@ function render_settings_page()
 
 function wordeley_plugin_section_one()
 {
-    echo '<p>Insert your Mendeley Developer API credentials below. Not registered a Mendeley application yet? Go to the <a href="https://dev.mendeley.com/myapps.html" target="blank">Mendeley Developer Portal</a>.</p>';
+    echo __('<p>Insert your Mendeley Developer API credentials below. Not registered a Mendeley application yet? Go to the <a href="https://dev.mendeley.com/myapps.html" target="blank">Mendeley Developer Portal</a>.</p>', 'wordeley');
 }
 
 function wordeley_plugin_application_id()
@@ -40,7 +40,7 @@ function wordeley_plugin_application_id()
 ?>
     <input type="text" name="wordeley_plugin_settings[application_id]" value="<?php echo ((!empty($value)) ? $value : '') ?>" />
     <p class="description">
-        The numerical ID of the application registered in the Mendeley Developer Portal.
+        <?= __("The numerical ID of the application registered in the Mendeley Developer Portal.", 'wordeley') ?>
     </p>
 <?php
 }
@@ -52,7 +52,7 @@ function wordeley_plugin_application_secret()
 ?>
     <input type="text" name="wordeley_plugin_settings[application_secret]" value="<?php echo ((!empty($value)) ? $value : '') ?>" />
     <p class="description">
-        The application secret generated when creating a Mendeley application.
+        <?= __("The application secret generated when creating a Mendeley application.", 'wordeley') ?>
     </p>
 <?php
 }
@@ -72,7 +72,9 @@ function wordeley_plugin_api_access_token()
         <?= (empty($value)) ? 'Generate' : 'Refresh' ?>
     </button>
     <p class="description">
-        <?= (empty($value)) ? "The access token can be generated after entering your credentials." : "Your application's access token generated via the Mendeley API, valid for " . $token_expires_in . " and it will be refreshed automatically." ?>
+        <?= (empty($value)) ?
+            __("The access token can be generated after entering your credentials.", 'wordeley') :
+            sprintf(__("Your application's access token generated via the Mendeley API, valid for %s and it will be refreshed automatically.", 'wordeley'), $token_expires_in) ?>
     </p>
 <?php
 }
@@ -84,14 +86,14 @@ function wordeley_plugin_api_access_token_automatic()
 ?>
     <input type="checkbox" name="wordeley_plugin_settings[api_access_token_automatic]" <?= $checked ?> />
     <p>
-        The token will be refreshed automatically every hour.
+        <?= __("The token will be refreshed automatically every hour.", 'wordeley') ?>
     </p>
 <?php
 }
 
 function wordeley_plugin_section_two()
 {
-    echo '<p>Fill in your catalogue options to start retrieving article data.</p>';
+    echo '<p>' . __("Fill in your catalogue options to start retrieving article data.", 'wordeley') . '</p>';
 }
 
 function wordeley_plugin_article_authors()
@@ -101,7 +103,7 @@ function wordeley_plugin_article_authors()
 ?>
     <textarea name="wordeley_plugin_settings[article_authors]" cols="20" rows="10""><?= $value ?></textarea>
     <p class=" description">
-        Use a comma (,) to separate multiple author entries.
+        <?= __("Use a comma (,) to separate multiple author entries.", 'wordeley') ?>
     </p>
 <?php
 }
@@ -109,7 +111,7 @@ function wordeley_plugin_article_authors()
 
 function wordeley_plugin_section_three()
 {
-    echo '<p>The cache is automatically refreshed every 30 days.</p>';
+    echo '<p>' . __("The cache will be automatically refreshed every 30 days.", 'wordeley') . '</p>';
 }
 
 function wordeley_plugin_refresh_cache()
@@ -122,13 +124,13 @@ function wordeley_plugin_refresh_cache()
     <?php
     if (empty($last_modified)) {
     ?>
-        <button action="wordeley-refresh-cache" class="button">Build Cache</button>
-        <p>Click to build the article cache manually.</p>
+        <button action="wordeley-refresh-cache" class="button"><?= __("Build Cache", 'wordeley') ?></button>
+        <p><?= __("Click to build the article cache manually.", 'wordeley') ?></p>
     <?php
     } else {
     ?>
-        <button action="wordeley-refresh-cache" class="button">Refresh Cache</button>
-        <p>Click to refresh the article cache manually. Last modified <?= $last_modified ?></p>
+        <button action="wordeley-refresh-cache" class="button"><?= __("Refresh Cache", 'wordeley') ?></button>
+        <p><?= sprintf(__("Click to refresh the article cache manually. Last modified at %s", 'wordeley'), $last_modified) ?></p>
     <?php
     }
     ?>
@@ -138,8 +140,8 @@ function wordeley_plugin_refresh_cache()
 function wordeley_plugin_delete_cache()
 {
 ?>
-    <button action="wordeley-clear-cache" class="button is-destructive">Clear Cache</button>
-    <p>Click to clear the article cache manually.</p>
+    <button action="wordeley-clear-cache" class="button is-destructive"><?= __("Clear Cache", 'wordeley') ?></button>
+    <p><?= __("Click to clear the article cache manually.", 'wordeley') ?></p>
 <?php
 }
 
@@ -152,7 +154,7 @@ function wordeley_plugin_refresh_cache_automatic()
 ?>
     <input type="checkbox" name="wordeley_plugin_settings[refresh_cache_automatic]" <?= $checked ?> />
     <p>
-        The cache will be refreshed automatically every 30 days.
+        <?= __("The cache will be automatically refreshed every 30 days.", 'wordeley') ?>
     </p>
 <?php
 }

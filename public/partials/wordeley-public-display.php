@@ -52,30 +52,41 @@ function article_filters_html(array $authors = null, int $oldest_year = null, ar
         // Search value.
         $search_value = $_GET['article-search'] ?? '';
 
+        // Labels.
+        $search_label = __('Search', 'wordeley');
+        $search_placeholder_label = __('Type a search term', 'wordeley');
+        $authors_label = __('Authors', 'wordeley');
+        $years_label = __('Years', 'wordeley');
+        $years_from_label = __('From', 'wordeley');
+        $years_to_label = __('To', 'wordeley');
+        $view_label = __('View', 'wordeley');
+        $articles_per_page_label = __('Articles per page', 'wordeley');
+        $submit_label = __('Submit', 'wordeley');
+
         // Print form.
         return <<<HTML
             <form action="" method="get">
-                <h4>Search</h4>
-                <input type="text" name="article-search" value="{$search_value}" placeholder="Type a term"/>
-                <h4>Authors</h4>
+                <h4>{$search_label}</h4>
+                <input type="text" name="article-search" value="{$search_value}" placeholder="{$search_placeholder_label}"/>
+                <h4>{$authors_label}</h4>
                 {$checkboxes}
-                <h4>Years</h4>
+                <h4>{$years_label}</h4>
                 <label>
-                    From
+                    {$years_from_label}
                 <input type="number" name="starting-year" min="{$oldest_year}" max="{$current_year}" placeholder="{$oldest_year}">
                 </label>
                 <label>
-                    To
+                    {$years_to_label}
                     <input type="number" name="ending-year" min="1970" max="{$current_year}" placeholder="${current_year}">
                 </label>
-                <h4>View</h4>
+                <h4>{$view_label}</h4>
                 <label>
-                Articles per page
+                {$articles_per_page_label}
                 <select name="articles-per-page">
                     {$page_size_options_html}
                 </select>
                 </label>
-                <button type="submit">Submit</button>
+                <button type="submit">{$submit_label}</button>
             </form>
         HTML;
     }
@@ -104,23 +115,29 @@ function article_list_html(array $articles = null)
                 }
             }
 
+            $source_label = __('Source', 'wordeley');
+
             $metadata_source = (!empty($article['source'])) ? <<<HTML
-                <span class="source"><span class="label">Source:</span> {$article['source']}</span>
+                <span class="source"><span class="label">{$source_label}:</span> {$article['source']}</span>
                 HTML : '';
             $metadata_doi = (!empty($article['identifiers']['doi'])) ? <<<HTML
                 <span class="doi"><span class="label">DOI:</span> {$article['identifiers']['doi']}</span>
                 HTML : '';
+
+            $view_more_label = __('View more information', 'wordeley');
+            $authors_label = __('Authors', 'wordeley');
+            $year_label = __('Year', 'wordeley');
             $list .= <<<HTML
                 <li>
                     <h3>{$article['title']}</h3>
                     <div class="metadata">
-                        <span class="authors"><span class="label">Authors:</span> {$authors}</span>
+                        <span class="authors"><span class="label">{$authors_label}:</span> {$authors}</span>
                         {$metadata_source}
                         {$metadata_doi}        
-                        <span class="year"><span class="label">Year:</span> {$article['year']}</span>
+                        <span class="year"><span class="label">{$year_label}:</span> {$article['year']}</span>
                     </div>
                     <div class="information">
-                        <a href="{$article['link']}" target="blank">View more information &rarr;</a>
+                        <a href="{$article['link']}" target="blank">{$view_more_label} &rarr;</a>
                     </div>
                 </li>
             HTML;
@@ -160,6 +177,8 @@ function catalogue_shortcode_html($authors = null, $articles = null, $author_sta
         </ul>
     HTML;
 
+    $total_articles_label = __('total articles', 'wordeley');
+
     return <<<HTML
         <div class="wordeley-catalogue">
             <div class="wordeley-catalogue-filters">
@@ -167,7 +186,7 @@ function catalogue_shortcode_html($authors = null, $articles = null, $author_sta
             </div>
             <div class="wordeley-catalogue-list">
                 <div class="wordeley-total-article-label">
-                    {$total_articles} total articles
+                    {$total_articles} {$total_articles_label}
                 </div>
                 <ul>
                     {$list}

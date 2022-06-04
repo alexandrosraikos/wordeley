@@ -1,0 +1,111 @@
+# Admin
+
+msgid "Wordeley Settings"
+msgstr "Ρυθμίσεις Wordeley"
+
+msgid "This is the options page for the Wordeley plugin."
+msgstr "Αυτή είναι η σελίδα ρυθμίσεων για την προσθήκη Wordeley."
+
+msgid "<p>Insert your Mendeley Developer API credentials below. Not registered a Mendeley application yet? Go to the <a href=\"https://dev.mendeley.com/myapps.html\" target=\"blank\">Mendeley Developer Portal</a>.</p>"
+msgstr "<p>Εισαγάγετε τα διαπιστευτήρια του Mendeley Developer API παρακάτω. Δεν έχετε καταχωρήσει ακόμα μια αίτηση Mendeley; Μεταβείτε στην <a href=\"https://dev.mendeley.com/myapps.html\" target=\"blank\">Πύλη προγραμματιστών Mendeley</a>.</p>"
+
+msgid "The numerical ID of the application registered in the Mendeley Developer Portal."
+msgstr "Το αριθμητικό αναγνωριστικό της εφαρμογής που είναι καταχωρημένο στην Πύλη προγραμματιστών Mendeley."
+
+msgid "The application secret generated when creating a Mendeley application."
+msgstr "Το application secret που δημιουργήθηκε κατά τη δημιουργία μιας εφαρμογής Mendeley."
+
+msgid "The access token can be generated after entering your credentials."
+msgstr "Το access token μπορεί να δημιουργηθεί αφού εισαγάγετε τα διαπιστευτήριά σας."
+
+msgid "Your application's access token generated via the Mendeley API, valid for %s and it will be refreshed automatically."
+msgstr "Το access token της εφαρμογής σας δημιουργήθηκε μέσω του Mendeley API, ισχύει για %s και θα ανανεωθεί αυτόματα."
+
+msgid "Refresh token automatically"
+msgstr "Αυτόματη ανανέωση token"
+
+msgid "The token will be refreshed automatically every hour."
+msgstr "Το token θα ανανεώνεται αυτόματα κάθε ώρα."
+
+msgid "Catalog Filtering"
+msgstr "Φίλτρο καταλόγου"
+
+msgid "Fill in your catalogue options to start retrieving article data."
+msgstr "Συμπληρώστε τις επιλογές του καταλόγου σας για να ξεκινήσετε την ανάκτηση δεδομένων άρθρων."
+
+msgid "Authors"
+msgstr "Συγγραφείς"
+
+msgid "Use a comma (,) to separate multiple author entries."
+msgstr "Χρησιμοποιήστε κόμμα (,) για να διαχωρίσετε πολλές εγγραφές συγγραφέων."
+
+msgid "Manage Cache"
+msgstr "Διαχείριση κρυφής μνήμης"
+
+msgid "Build Cache"
+msgstr "Λήψη δεδομένων"
+
+msgid "Click to build the article cache manually."
+msgstr "Επιλέξτε για να ληφθούν τα δεδομένα της κρυφής μνήμης χειροκίνητα."
+
+msgid "Refresh cache"
+msgstr "Ανανέωση κρυφής μνήμης"
+
+msgid "Refresh Cache"
+msgstr "Ανανέωση"
+
+msgid "Click to refresh the article cache manually. Last modified at %s"
+msgstr "Κάντε κλικ για να ανανεώσετε την κρυφή μνήμη χειροκίνητα. Τελευταία τροποποίηση στις %s"
+
+msgid "Delete cache"
+msgstr "Διαγραφή κρυφής μνήμης"
+
+msgid "Clear Cache"
+msgstr "Διαγραφή"
+
+msgid "Click to clear the article cache manually."
+msgstr "Κάντε κλικ για να διαγράψετε την κρυφή μνήμη χειροκίνητα."
+
+msgid "Refresh cache automatically"
+msgstr "Ανανέωση κρυφής μνήμης αυτόματα"
+
+msgid "The cache will be automatically refreshed every 30 days."
+msgstr "Η κρυφή μνήμη ανανεώνεται αυτόματα κάθε 30 ημέρες."
+
+# Public
+
+msgid "Search"
+msgstr "Αναζήτηση"
+
+msgid "Type a search term"
+msgstr "Πληκτρολογήστε έναν όρο"
+
+msgid "Years"
+msgstr "Έτη"
+
+msgid "From"
+msgstr "Από"
+
+msgid "To"
+msgstr "Εώς"
+
+msgid "View"
+msgstr "Προβολή"
+
+msgid "Articles per page"
+msgstr "Άρθρα ανά σελίδα"
+
+msgid "Submit"
+msgstr "Υποβολή"
+
+msgid "total articles"
+msgstr "άρθρα"
+
+msgid "Source"
+msgstr "Πηγή"
+
+msgid "Year"
+msgstr "Έτος"
+
+msgid "View more information"
+msgstr "Διαβάστε περισσότερα"
