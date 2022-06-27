@@ -14,8 +14,11 @@ use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
  * @subpackage Wordeley/public/partials
  */
 
-function article_filters_html(array $authors = null, int $oldest_year = null, array $author_article_total = null)
-{
+function article_filters_html(
+    array $authors = null,
+    int $oldest_year = null,
+    array $author_article_total = null,
+) {
     if (empty($authors) || empty($authors[0])) {
         return show_alert('No authors were configured.');
     } else {
@@ -38,6 +41,8 @@ function article_filters_html(array $authors = null, int $oldest_year = null, ar
         // Year values.
         $oldest_year = $oldest_year ?? 1975;
         $current_year = date("Y");
+        $selected_starting_year = $_GET['starting-year'] ?? null;
+        $selected_ending_year = $_GET['ending-year'] ?? null;
 
         // Page size selector options. 
         $page_size_options = [15, 25, 50];
@@ -74,11 +79,11 @@ function article_filters_html(array $authors = null, int $oldest_year = null, ar
                 <div class="years-filter">
                     <label>
                         {$years_from_label}
-                    <input type="number" name="starting-year" min="{$oldest_year}" max="{$current_year}" placeholder="{$oldest_year}">
+                    <input type="number" name="starting-year" min="{$oldest_year}" max="{$current_year}" placeholder="{$oldest_year}" value="{$selected_starting_year}">
                     </label>
                     <label>
                         {$years_to_label}
-                        <input type="number" name="ending-year" min="1970" max="{$current_year}" placeholder="${current_year}">
+                        <input type="number" name="ending-year" min="1970" max="{$current_year}" placeholder="{$current_year}" value="{$selected_ending_year}">
                     </label>
                 </div>
                 <h4>{$view_label}</h4>

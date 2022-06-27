@@ -74,7 +74,6 @@ class Wordeley_Public
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/wordeley-public.css', array(), $this->version, 'all');
 	}
 
@@ -99,6 +98,11 @@ class Wordeley_Public
 		 */
 
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wordeley-public.js', array('jquery'), $this->version, false);
+
+		wp_localize_script($this->plugin_name, 'PublicProperties', [
+			'GetArticlesNonce' => wp_create_nonce('wordeley_get_articles'),
+			'AJAXEndpoint' => admin_url('admin-ajax.php')
+		]);
 	}
 
 	/**
@@ -119,20 +123,52 @@ class Wordeley_Public
 		$options = get_option('wordeley_plugin_settings');
 		$authors = Wordeley::parse_authors($options['article_authors']);
 
-		// Calculate author article totals.
-		$articles = Wordeley::get_articles(
-			$_GET['authors'] ?? null,
-			empty($_GET['article-page']) ? null : $_GET['article-page'],
-			empty($_GET['articles-per-page']) ? null : $_GET['articles-per-page'],
-			empty($_GET['article-search']) ? null : $_GET['article-search']
-		);
+		if (wp_doing_ajax()) {
+			Wordeley::ajax_handler(
+				function ($filters) {
+					$articles = Wordeley::get_articles(
+						empty($filters['authors']) ? null : $filters['authors'],
+						empty($filters['article-page']) ? null : $filters['authors'],
+						empty($filters['authors']) ? null : $filters['authors'],
+						empty($filters['authors']) ? null : $filters['authors']
+					);
 
-		// Print HTML.
-		return catalogue_shortcode_html(
-			$authors ?? null,
-			$articles,
-			$articles['author_statistics'],
-			$articles['total_articles']
+					// Print HTML.
+					return catalogue_shortcode_html(
+						$authors ?? null,
+						$articles,
+						$articles['author_statistics'],
+						$articles['total_articles']
+					);
+				}
+			);
+		} else {
+			// Calculate author article totals.
+			$articles = Wordeley::get_articles(
+				$_GET['authors'] ?? null,
+				empty($_GET['article-page']) ? null : $_GET['article-page'],
+				empty($_GET['articles-per-page']) ? null : $_GET['articles-per-page'],
+				empty($_GET['article-search']) ? null : $_GET['article-search'],
+				empty($_GET['starting-year']) ? null : $_GET['starting-year'],
+				empty($_GET['ending-year']) ? null : $_GET['ending-year']
+			);
+
+			// Print HTML.
+			return catalogue_shortcode_html(
+				$authors ?? null,
+				$articles,
+				$articles['author_statistics'],
+				$articles['total_articles']
+			);
+		}
+	}
+
+	public function get_articles_handler()
+	{
+		Wordeley::ajax_handler(
+			function ($filters) {
+				echo $filters;
+			}
 		);
 	}
 }

@@ -223,6 +223,8 @@ class Wordeley
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 		$this->loader->add_action('init', $plugin_public, 'register_shortcodes');
+		$this->loader->add_action('wp_ajax_wordeley_get_articles', $plugin_public, 'get_articles_handler');
+		$this->loader->add_action('wp_ajax_nopriv_wordeley_get_articles', $plugin_public, 'get_articles_handler');
 	}
 
 	/**
@@ -453,7 +455,14 @@ class Wordeley
 		});
 	}
 
-	public static function get_articles(array $authors = null, int|null $page = 0, int|null $articles_per_page = 10, string|null $search_term = null)
+	public static function filter_articles_by_year(array $articles, int $starting_year, int $ending_year)
+	{
+		return array_filter($articles, function ($article) use ($starting_year, $ending_year) {
+			return $article['year'] >= $starting_year && $article['year'] <= $ending_year;
+		});
+	}
+
+	public static function get_articles(array $authors = null, int|null $page = 0, int|null $articles_per_page = 10, string|null $search_term = null, int|null $starting_year = null, int|null $ending_year = null)
 	{
 		// Get requested authors.
 		if (empty($authors)) {
@@ -471,6 +480,9 @@ class Wordeley
 
 		// Filter relevant articles by author.
 		$filtered_articles = Wordeley::filter_articles_by_author($total_articles, $authors);
+
+		// Filter relevant articles by years.
+		$filtered_articles = Wordeley::filter_articles_by_year($filtered_articles, $starting_year ?? 1900, $ending_year ?? intval(date('Y')));
 
 		// Filter relevant articles by search term.
 		if (!empty($search_term)) {
@@ -503,7 +515,7 @@ class Wordeley
 
 		$author_article_total = [];
 		foreach (Wordeley::parse_authors() as $author) {
-			$author_article_total[$author] = count(Wordeley::filter_articles_by_author($total_articles, [$author]));
+			$author_article_total[$author] = count(Wordeley::filter_articles_by_author($filtered_articles, [$author]));
 		}
 		$articles = [
 			'content' =>  $paged_articles,
