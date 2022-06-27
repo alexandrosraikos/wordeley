@@ -40,7 +40,7 @@ function article_filters_html(array $authors = null, int $oldest_year = null, ar
         $current_year = date("Y");
 
         // Page size selector options. 
-        $page_size_options = [10, 25, 50];
+        $page_size_options = [15, 25, 50];
         $page_size_options_html = "";
         for ($j = 0; $j <= count($page_size_options) - 1; $j++) {
             $selected = ($page_size_options[$j] == ($_GET['articles-per-page'] ?? 10)) ? 'selected' : '';
@@ -71,14 +71,16 @@ function article_filters_html(array $authors = null, int $oldest_year = null, ar
                 <h4>{$authors_label}</h4>
                 {$checkboxes}
                 <h4>{$years_label}</h4>
-                <label>
-                    {$years_from_label}
-                <input type="number" name="starting-year" min="{$oldest_year}" max="{$current_year}" placeholder="{$oldest_year}">
-                </label>
-                <label>
-                    {$years_to_label}
-                    <input type="number" name="ending-year" min="1970" max="{$current_year}" placeholder="${current_year}">
-                </label>
+                <div class="years-filter">
+                    <label>
+                        {$years_from_label}
+                    <input type="number" name="starting-year" min="{$oldest_year}" max="{$current_year}" placeholder="{$oldest_year}">
+                    </label>
+                    <label>
+                        {$years_to_label}
+                        <input type="number" name="ending-year" min="1970" max="{$current_year}" placeholder="${current_year}">
+                    </label>
+                </div>
                 <h4>{$view_label}</h4>
                 <label>
                 {$articles_per_page_label}

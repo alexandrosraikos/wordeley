@@ -421,12 +421,21 @@ class Wordeley
 		$authors = Wordeley::parse_authors();
 
 		foreach ($authors as $author) {
-			// Get related articles.
-			$response = Wordeley::api_request(
-				'GET',
-				'/search/catalog?author=' . urlencode($author) . '&limit=100'
-			);
-			$articles = array_merge($articles, $response);
+			$olders_exist = true;
+			$starting_year = intval(date('Y'));
+			while ($olders_exist) {
+				$response = Wordeley::api_request(
+					'GET',
+					'/search/catalog?author=' . urlencode($author) . '&limit=100&min_year=' . $starting_year . '&max_year=' . $starting_year
+				);
+				$response = Wordeley::api_request(
+					'GET',
+					'/search/catalog?author=' . urlencode($author) . '&limit=100&min_year=' . $starting_year . '&max_year=' . $starting_year
+				);
+				$olders_exist = !empty($response);
+				$articles = array_merge($articles, $response);
+				$starting_year -= 1;
+			}
 		}
 
 		Wordeley::update_article_cache($articles);
@@ -489,7 +498,7 @@ class Wordeley
 		// Calculate article years.
 		$article_years = array_map(function ($article) {
 			return $article['year'];
-		}, $paged_articles);
+		}, $filtered_articles);
 		sort($article_years);
 
 		$author_article_total = [];

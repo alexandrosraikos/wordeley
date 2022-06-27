@@ -40,7 +40,7 @@
   background-color: var(--wordeley-color-background-secondary);
   border-radius: 10px;
   flex-basis: 250px;
-  min-width: 250px;
+  min-width: 300px;
 }
 
 .wordeley-catalogue > .wordeley-catalogue-filters > h2 {
@@ -146,15 +146,41 @@
   form
   input:not([type="checkbox"]) {
   display: block;
+  width: 100%;
 }
 
 .wordeley-catalogue .wordeley-catalogue-filters form label:last-of-type {
   display: block;
 }
 
+.wordeley-catalogue .wordeley-catalogue-filters .years-filter {
+  display: flex;
+  justify-content: space-between;
+}
+
+.wordeley-catalogue .wordeley-catalogue-filters .years-filter > * {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.wordeley-catalogue
+  .wordeley-catalogue-filters
+  form
+  label
+  input[type="number"]::-webkit-inner-spin-button,
+.wordeley-catalogue
+  .wordeley-catalogue-filters
+  form
+  label
+  input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
 .wordeley-catalogue .wordeley-catalogue-filters form label:last-of-type select {
   display: block;
   width: 100%;
+  -webkit-appearance: menulist;
 }
 
 .wordeley-catalogue
