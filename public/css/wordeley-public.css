@@ -31,6 +31,9 @@
   display: flex;
   align-items: flex-start;
 }
+.wordeley-catalogue.loading {
+  opacity: 0.5;
+}
 
 /* Catalogue View - Filters */
 

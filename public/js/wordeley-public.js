@@ -143,18 +143,43 @@ function makeWPRequest(trigger, action, nonce, data, completion) {
 }
 
 $(document).ready(() => {
-    // $(".wordeley-catalogue-filters form").on("submit", (e) => {
-    //     e.preventDefault();
-    //     var formData = new FormData(e.target);
+    $(".wordeley-catalogue-filters form").on("submit", (e) => {
+        e.preventDefault();
+        var formData = new FormData(e.target);
 
-    //     makeWPRequest(
-    //         e.target,
-    //         "wordeley_get_articles",
-    //         PublicProperties.GetArticlesNonce,
-    //         formData,
-    //         (articlesHTML) => {
-    //             $('.wordeley-cataloge').replaceWith(articlesHTML);
-    //         }
-    //     );
-    // });
+        // Read page value and use intact.
+        var page = $('.wordeley-pagination .active').html();
+        formData.append('article-page', page);
+
+        makeWPRequest(
+            '.wordeley-catalogue',
+            'wordeley_get_articles',
+            PublicProperties.GetArticlesNonce,
+            formData,
+            (articlesHTML) => {
+                $('.wordeley-catalogue').replaceWith(articlesHTML);
+            }
+        );
+
+    });
+
+    $(".wordeley-pagination a:not(.active)").on(
+        'click',
+        (e) => {
+            e.preventDefault();
+            // Read form data and use intact.
+            var formData = new FormData($(".wordeley-catalogue-filters form")[0]);
+            formData.append('article-page', $(e.target).html());
+
+            makeWPRequest(
+                '.wordeley-catalogue',
+                'wordeley_get_articles',
+                PublicProperties.GetArticlesNonce,
+                formData,
+                (articlesHTML) => {
+                    $('.wordeley-catalogue').replaceWith(articlesHTML);
+                }
+            );
+        }
+    )
 });

@@ -120,55 +120,71 @@ class Wordeley_Public
 	{
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wordeley-public-display.php';
 
-		$options = get_option('wordeley_plugin_settings');
-		$authors = Wordeley::parse_authors($options['article_authors']);
+		function print_shortcode(
+			array $authors = null,
+			string $query = null,
+			int $start_year = null,
+			int $end_year = null,
+			int $page_size = null,
+			int $page = null
+		) {
+			$authors ??= Wordeley_Author_Controller::get_authors();
+			$query ??= '';
+			$page_size ??= Wordeley_Article_Controller::$default_page_size;
+			$page ??= Wordeley_Article_Controller::$default_page;
 
-		if (wp_doing_ajax()) {
-			Wordeley::ajax_handler(
-				function ($filters) {
-					$articles = Wordeley::get_articles(
-						empty($filters['authors']) ? null : $filters['authors'],
-						empty($filters['article-page']) ? null : $filters['authors'],
-						empty($filters['authors']) ? null : $filters['authors'],
-						empty($filters['authors']) ? null : $filters['authors']
-					);
-
-					// Print HTML.
-					return catalogue_shortcode_html(
-						$authors ?? null,
-						$articles,
-						$articles['author_statistics'],
-						$articles['total_articles']
-					);
-				}
+			// Get relevant articles.
+			$article_controller = new Wordeley_Article_Controller;
+			$oldest_total_year = Wordeley_Article_Controller::get_year($article_controller->articles, false);
+			$recent_total_year = Wordeley_Article_Controller::get_year($article_controller->articles, true);
+			$article_controller->filter_articles(
+				$authors,
+				$query,
+				$start_year,
+				$end_year
 			);
-		} else {
-			// Calculate author article totals.
-			$articles = Wordeley::get_articles(
-				$_GET['authors'] ?? null,
-				empty($_GET['article-page']) ? null : $_GET['article-page'],
-				empty($_GET['articles-per-page']) ? null : $_GET['articles-per-page'],
-				empty($_GET['article-search']) ? null : $_GET['article-search'],
-				empty($_GET['starting-year']) ? null : $_GET['starting-year'],
-				empty($_GET['ending-year']) ? null : $_GET['ending-year']
-			);
+			$articles = $article_controller->get_page($page, $page_size);
+			$total_article_pages = $article_controller->total_pages($page_size);
 
-			// Print HTML.
+			// Consolidate information for all authors.
+			$author_controller = new Wordeley_Author_Controller;
+			$author_information = $author_controller->get_information_table($authors, $article_controller->articles);
+
 			return catalogue_shortcode_html(
-				$authors ?? null,
 				$articles,
-				$articles['author_statistics'],
-				$articles['total_articles']
+				$author_information,
+				$query,
+				$oldest_total_year,
+				$recent_total_year,
+				$start_year,
+				$end_year,
+				$page_size,
+				$page,
+				count($article_controller->articles),
+				$total_article_pages
 			);
 		}
-	}
 
-	public function get_articles_handler()
-	{
-		Wordeley::ajax_handler(
-			function ($filters) {
-				echo $filters;
-			}
-		);
+		if (wp_doing_ajax()) {
+			Wordeley::ajax_handler(function ($filters) {
+				return print_shortcode(
+					$filters['authors'],
+					$filters['article-search'],
+					intval($filters['starting-year']),
+					intval($filters['ending-year']),
+					intval($filters['articles-per-page']),
+					intval($filters['article-page'])
+				);
+			});
+		} else {
+			return print_shortcode(
+				$_GET['authors'] ?? null,
+				empty($_GET['article-search']) ? null : $_GET['article-search'],
+				empty($_GET['starting-year']) ? null : $_GET['starting-year'],
+				empty($_GET['ending-year']) ? null : $_GET['ending-year'],
+				empty($_GET['articles-per-page']) ? null : $_GET['articles-per-page'],
+				empty($_GET['article-page']) ? null : $_GET['article-page']
+			);
+		}
 	}
 }

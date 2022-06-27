@@ -118,6 +118,10 @@ class Wordeley
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wordeley-i18n.php';
 
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wordeley-author-controller.php';
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wordeley-article-controller.php';
+
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
@@ -223,8 +227,8 @@ class Wordeley
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 		$this->loader->add_action('init', $plugin_public, 'register_shortcodes');
-		$this->loader->add_action('wp_ajax_wordeley_get_articles', $plugin_public, 'get_articles_handler');
-		$this->loader->add_action('wp_ajax_nopriv_wordeley_get_articles', $plugin_public, 'get_articles_handler');
+		$this->loader->add_action('wp_ajax_wordeley_get_articles', $plugin_public, 'Wordeley_Public::catalogue_shortcode');
+		$this->loader->add_action('wp_ajax_nopriv_wordeley_get_articles', $plugin_public, 'Wordeley_Public::catalogue_shortcode');
 	}
 
 	/**
@@ -424,19 +428,19 @@ class Wordeley
 
 		foreach ($authors as $author) {
 			$olders_exist = true;
-			$starting_year = intval(date('Y'));
+			$start_year = intval(date('Y'));
 			while ($olders_exist) {
 				$response = Wordeley::api_request(
 					'GET',
-					'/search/catalog?author=' . urlencode($author) . '&limit=100&min_year=' . $starting_year . '&max_year=' . $starting_year
+					'/search/catalog?author=' . urlencode($author) . '&limit=100&min_year=' . $start_year . '&max_year=' . $start_year
 				);
 				$response = Wordeley::api_request(
 					'GET',
-					'/search/catalog?author=' . urlencode($author) . '&limit=100&min_year=' . $starting_year . '&max_year=' . $starting_year
+					'/search/catalog?author=' . urlencode($author) . '&limit=100&min_year=' . $start_year . '&max_year=' . $start_year
 				);
 				$olders_exist = !empty($response);
 				$articles = array_merge($articles, $response);
-				$starting_year -= 1;
+				$start_year -= 1;
 			}
 		}
 
@@ -455,20 +459,26 @@ class Wordeley
 		});
 	}
 
-	public static function filter_articles_by_year(array $articles, int $starting_year, int $ending_year)
+	public static function filter_articles_by_year(array $articles, int $start_year, int $end_year)
 	{
-		return array_filter($articles, function ($article) use ($starting_year, $ending_year) {
-			return $article['year'] >= $starting_year && $article['year'] <= $ending_year;
+		return array_filter($articles, function ($article) use ($start_year, $end_year) {
+			return $article['year'] >= $start_year && $article['year'] <= $end_year;
 		});
 	}
 
-	public static function get_articles(array $authors = null, int|null $page = 0, int|null $articles_per_page = 10, string|null $search_term = null, int|null $starting_year = null, int|null $ending_year = null)
+	public static function count_articles_by_author($author, $articles = null)
 	{
-		// Get requested authors.
-		if (empty($authors)) {
-			$authors = Wordeley::parse_authors();
-		}
+		return count(Wordeley::filter_articles_by_author($articles, [$author]));
+	}
 
+	public static function get_articles(
+		array $authors,
+		string|null $query,
+		int|null $start_year,
+		int|null $end_year,
+		int|null $page,
+		int|null $page_size
+	) {
 		// Get all articles.
 		if (is_file(WORDELEY_FILE_STORE . "/articles.json")) {
 			// Get from cache.
@@ -482,30 +492,30 @@ class Wordeley
 		$filtered_articles = Wordeley::filter_articles_by_author($total_articles, $authors);
 
 		// Filter relevant articles by years.
-		$filtered_articles = Wordeley::filter_articles_by_year($filtered_articles, $starting_year ?? 1900, $ending_year ?? intval(date('Y')));
+		$filtered_articles = Wordeley::filter_articles_by_year($filtered_articles, $start_year ?? 1900, $end_year ?? intval(date('Y')));
 
 		// Filter relevant articles by search term.
-		if (!empty($search_term)) {
+		if (!empty($query)) {
 			$filtered_articles = array_filter(
 				$filtered_articles,
-				function ($article) use ($search_term) {
-					$search_result = stripos($article['title'], $search_term);
+				function ($article) use ($query) {
+					$search_result = stripos($article['title'], $query);
 					return $search_result !== false;
 				}
 			);
 		}
 
 		// Initialize pagination.
-		if (empty($articles_per_page)) {
-			$articles_per_page = 5;
+		if (empty($page_size)) {
+			$page_size = 5;
 		}
 		if (empty($page)) {
 			$page = 0;
 		}
 
 		// Create article page.
-		$starting_index = $articles_per_page * $page;
-		$paged_articles = array_slice($filtered_articles, $starting_index, $articles_per_page);
+		$starting_index = $page_size * $page;
+		$paged_articles = array_slice($filtered_articles, $starting_index, $page_size);
 
 		// Calculate article years.
 		$article_years = array_map(function ($article) {
@@ -519,7 +529,7 @@ class Wordeley
 		}
 		$articles = [
 			'content' =>  $paged_articles,
-			'total_pages' => ceil(count($filtered_articles) / $articles_per_page),
+			'total_pages' => ceil(count($filtered_articles) / $page_size),
 			'oldest_year' => $article_years[0] ?? 1975,
 			'author_statistics' => $author_article_total,
 			'total_articles' => count($filtered_articles)

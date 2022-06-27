@@ -15,47 +15,38 @@ use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
  */
 
 function article_filters_html(
-    array $authors = null,
-    int $oldest_year = null,
-    array $author_article_total = null,
+    array $author_information,
+    string $query = null,
+    int $oldest_year,
+    int $current_year,
+    int $start_year = null,
+    int $end_year = null,
+    int $page_size = null
 ) {
-    if (empty($authors) || empty($authors[0])) {
+    if (empty($author_information) || empty($author_information[0])) {
         return show_alert('No authors were configured.');
     } else {
 
         // Author values.
         $checkboxes = "";
-        $total_articles = 0;
-        $active_authors = $_GET['authors'] ?? $authors;
-        foreach ($authors as $author) {
-            $checked = in_array($author, $active_authors ?? []) ? 'checked' : '';
-            $author_label = !empty($author_article_total) ? ($author . ' (' . $author_article_total[$author] . ')') : $author;
+        foreach ($author_information as $author) {
+            $checked = $author['selected'] ? 'checked' : '';
             $checkboxes .= <<<HTML
                 <label>
-                    <input type="checkbox" name="authors[]" value="{$author}" id="" {$checked} /> {$author_label}
+                    <input type="checkbox" name="authors[]" value="{$author['name']}" id="" {$checked} /> {$author['name']} ({$author['article_count']})
                 </label>
             HTML;
-            $total_articles += $author_article_total[$author];
         };
-
-        // Year values.
-        $oldest_year = $oldest_year ?? 1975;
-        $current_year = date("Y");
-        $selected_starting_year = $_GET['starting-year'] ?? null;
-        $selected_ending_year = $_GET['ending-year'] ?? null;
 
         // Page size selector options. 
         $page_size_options = [15, 25, 50];
         $page_size_options_html = "";
         for ($j = 0; $j <= count($page_size_options) - 1; $j++) {
-            $selected = ($page_size_options[$j] == ($_GET['articles-per-page'] ?? 10)) ? 'selected' : '';
+            $selected = ($page_size_options[$j] == ($page_size)) ? 'selected' : '';
             $page_size_options_html .= <<<HTML
             <option value="{$page_size_options[$j]}" {$selected}>{$page_size_options[$j]}</option>
             HTML;
         }
-
-        // Search value.
-        $search_value = $_GET['article-search'] ?? '';
 
         // Labels.
         $search_label = __('Search', 'wordeley');
@@ -68,22 +59,25 @@ function article_filters_html(
         $articles_per_page_label = __('Articles per page', 'wordeley');
         $submit_label = __('Submit', 'wordeley');
 
+        $start_year = empty($start_year) ? $oldest_year : $start_year;
+        $end_year = empty($end_year) ? $current_year : $end_year;
+
         // Print form.
         return <<<HTML
             <form action="" method="get">
                 <h4>{$search_label}</h4>
-                <input type="text" name="article-search" value="{$search_value}" placeholder="{$search_placeholder_label}"/>
+                <input type="text" name="article-search" value="{$query}" placeholder="{$search_placeholder_label}"/>
                 <h4>{$authors_label}</h4>
                 {$checkboxes}
                 <h4>{$years_label}</h4>
                 <div class="years-filter">
                     <label>
                         {$years_from_label}
-                    <input type="number" name="starting-year" min="{$oldest_year}" max="{$current_year}" placeholder="{$oldest_year}" value="{$selected_starting_year}">
+                    <input type="number" name="starting-year" min="{$oldest_year}" max="{$current_year}" placeholder="{$oldest_year}" value="{$start_year}">
                     </label>
                     <label>
                         {$years_to_label}
-                        <input type="number" name="ending-year" min="1970" max="{$current_year}" placeholder="{$current_year}" value="{$selected_ending_year}">
+                        <input type="number" name="ending-year" min="{$oldest_year}" max="{$current_year}" placeholder="{$current_year}" value="{$end_year}">
                     </label>
                 </div>
                 <h4>{$view_label}</h4>
@@ -99,13 +93,13 @@ function article_filters_html(
     }
 }
 
-function article_list_html(array $articles = null)
+function article_list_html(array $articles = [])
 {
-    if (empty($articles['content'])) {
+    if (empty($articles)) {
         return show_alert('No articles were found matching your criteria.', 'notice');
     } else {
         $list = "";
-        foreach ($articles['content'] as $article) {
+        foreach ($articles as $article) {
             $authors = "";
             foreach ($article['authors'] as $key => $author) {
                 if (!empty($author['first_name']) && !empty($author['last_name'])) {
@@ -158,24 +152,39 @@ function article_list_html(array $articles = null)
  * The HTML view of the article catalogue.
  * @since  1.0.0
  */
-function catalogue_shortcode_html($authors = null, $articles = null, $author_statistics = null, int $total_articles = 0)
-{
+function catalogue_shortcode_html(
+    array $articles = null,
+    array $author_information = null,
+    string $query = null,
+    int $oldest_year,
+    int $current_year,
+    int $start_year = null,
+    int $end_year = null,
+    int $page_size,
+    int $page,
+    int $total_articles,
+    int $total_pages
+) {
     $list = article_list_html($articles ?? null);
     $filters = article_filters_html(
-        $authors ?? null,
-        $articles['oldest_year'] ?? 1975,
-        $author_statistics ?? null
+        $author_information,
+        $query,
+        $oldest_year,
+        $current_year,
+        $start_year,
+        $end_year,
+        $page_size,
     );
 
     // Append page selector.
     global $wp;
     $page_selector = "";
     $current_url = home_url($wp->request);
-    for ($i = 1; $i < $articles['total_pages']; $i++) {
+    for ($i = 1; $i < $total_pages; $i++) {
         $page_url = $current_url . '?article-page=' . $i;
-        $html_class = ($_GET['article-page'] ?? '1' == $i) ? 'active' : '';
+        $html_class = ($page == $i) ? 'active' : '';
         $page_selector .= <<<HTML
-            <li><a href="{$page_url}" class="{$html_class}">$i</a></li>
+            <li><a href="{$page_url}" class="{$html_class}" wordeley-article-page="$i">$i</a></li>
         HTML;
     }
     $page_selector = <<<HTML
