@@ -31,9 +31,10 @@ function article_filters_html(
         $checkboxes = "";
         foreach ($author_information as $author) {
             $checked = $author['selected'] ? 'checked' : '';
+            $author_article_count_label = $author['selected'] ? ' (' . $author['article_count'] . ')' : '';
             $checkboxes .= <<<HTML
                 <label>
-                    <input type="checkbox" name="authors[]" value="{$author['name']}" id="" {$checked} /> {$author['name']} ({$author['article_count']})
+                    <input type="checkbox" name="authors[]" value="{$author['name']}" id="" {$checked} /> {$author['name']}{$author_article_count_label}
                 </label>
             HTML;
         };

@@ -30,9 +30,12 @@
 .wordeley-catalogue {
   display: flex;
   align-items: flex-start;
+  transition: opacity 0.2s ease-in-out;
 }
 .wordeley-catalogue.loading {
   opacity: 0.5;
+  cursor: wait;
+  transition: opacity 0.2s ease-in-out;
 }
 
 /* Catalogue View - Filters */
