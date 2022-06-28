@@ -1,6 +1,8 @@
+![A blue delivery truck on the road.](docs/img/wordeley-repo.png)
+
 # Wordeley 🔬
 
-A WordPress plugin to integrate and showcase your Mendeley catalogue.
+A WordPress plugin to integrate and showcase your Mendeley articles.
 
 ## Features
 
@@ -51,6 +53,6 @@ Although I do try to keep this plugin stable and constantly up to date, I usuall
 
 I am not affiliated with Mendeley Limited. This is a third party plugin developed and provided free of charge (non-commercial) under [The Unlicense](https://unlicense.org) used to assist users and businesses in connecting a WordPress installation with the [Mendeley API](https://dev.mendeley.com)). All of the services provided to you by Mendeley Limited are subject to their [Terms & Conditions](https://www.mendeley.com/terms/) and you should always use their official software for your logistics operations, when using any complementary solutions utilising their available APIs such as this plugin ("Wordeley").
 
-The name "Wordeley", the `wordeley` identifier and any user interface text references made within this repository and the active use of the plugin are purely within the boundaries of non-commercial use, used for internal reference and functionality purposes (i.e. PHP `class` names, PHP `function` names, etc.), as well as a direct delineation of named functionalities offered by the official Mendeley API and its descriptive identifiers.
+The name "Mendeley", any user interface text references made within this repository and the active use of the plugin are purely within the boundaries of non-commercial use, used for internal reference and functionality purposes (i.e. PHP `class` names, PHP `function` names, etc.), as well as a direct delineation of named functionalities offered by the official Mendeley API and its descriptive identifiers.
 
 If you are a representative of Mendeley Limited and would like to pose concerns regarding possible trademark infringement, please [contact me](https://www.araikos.gr/en/contact) directly.
