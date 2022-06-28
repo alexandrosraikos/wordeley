@@ -75,7 +75,7 @@ class Wordeley_Communication_Controller {
 					throw new RuntimeException( 'There was an error while encoding the data to JSON.' ); // TODO @alexandrosraikos: Translate.
 				} else {
 					http_response_code( 200 );
-					die( esc_attr( $data ) );
+					die( $data );
 				}
 			}
 		} catch ( \Exception $e ) {
@@ -107,23 +107,26 @@ class Wordeley_Communication_Controller {
 			throw new InvalidArgumentException( 'You need to generate a Mendeley API access token in Wordeley settings.' ); // TODO @alexandrosraikos: Translate.
 		}
 
-		// Prepare headers.
+		// Prepare headers and authorization data.
 		if ( $requesting_access ) {
-			$headers = array( 'Content-Type: application/x-www-form-urlencoded' );
+			$headers = array(
+				'Content-Type' => 'application/x-www-form-urlencoded',
+			);
 		} else {
 			$headers = array(
-				'Authorization: Bearer ' . $access_token,
-				'Accept: application/vnd.mendeley-document.1+json',
+				'Authorization' => 'Bearer ' . rawurlencode( $access_token ),
+				'Accept'        => 'application/vnd.mendeley-document.1+json',
 			);
 		}
 
 		// Contact Mendeley API.
-		$response = wp_remote_get(
+		$response = wp_remote_post(
 			'https://api.mendeley.com' . $uri,
 			array(
-				'method'  => $http_method,
-				'headers' => $headers,
-				'body'    => http_build_query( $data ),
+				'httpversion' => '1.1',
+				'method'      => $http_method,
+				'headers'     => $headers,
+				'body'        => http_build_query( $data ),
 			)
 		);
 
@@ -135,21 +138,51 @@ class Wordeley_Communication_Controller {
 		}
 
 		// Get the response data.
-		$response  = wp_remote_retrieve_body( $response );
+		$data      = wp_remote_retrieve_body( $response );
 		$http_code = wp_remote_retrieve_response_code( $response );
 
 		// Handle response cases.
 		if ( 200 !== $http_code && 201 !== $http_code && 204 !== $http_code && 404 !== $http_code ) {
 			throw new ErrorException(
-				'The Mendeley API returned an HTTP ' . $http_code . ' status code. More information: ' . esc_attr( $response ?? 'Not provided' ) . '.'
+				'The Mendeley API returned an HTTP ' . $http_code . ' status code. More information: ' . esc_attr( $data ?? 'Not provided' ) . '.'
 			); // TODO @alexandrosraikos: Translate.
 		} else {
-			if ( ! empty( $response ) && is_string( $response ) ) {
-				$decoded = json_decode( $response, true );
-				return ( json_last_error() === JSON_ERROR_NONE ) ? $decoded : $response;
+			if ( ! empty( $data ) && is_string( $data ) ) {
+				$decoded = json_decode( $data, true );
+				return ( json_last_error() === JSON_ERROR_NONE ) ? $decoded : $data;
 			} else {
 				throw new ErrorException( 'The response was invalid.' ); // TODO @alexandrosraikos: Translate.
 			};
 		}
+	}
+
+	/**
+	 * Update the Mendeley API Access Token.
+	 *
+	 * Retrieves a new Mendeley API Access Token and persists it to the database.
+	 *
+	 * @since 1.0.0
+	 * @throws ErrorException When credentials are missing.
+	 */
+	public static function update_access_token() {
+		$options = get_option( 'wordeley_plugin_settings' );
+		if ( empty( $options['application_id'] ) || empty( $options['application_secret'] ) ) {
+			throw new ErrorException( "You need to enter your Mendeley application's credentials in Wordeley settings." ); // TODO @alexandrosraikos: Translate.
+		}
+
+		$response                               = self::api_request(
+			'POST',
+			'/oauth/token',
+			array(
+				'grant_type'    => 'client_credentials',
+				'scope'         => 'all',
+				'client_id'     => $options['application_id'],
+				'client_secret' => $options['application_secret'],
+			),
+			true
+		);
+		$options['api_access_token']            = $response['access_token'];
+		$options['api_access_token_expires_at'] = time() + $response['expires_in'];
+		update_option( 'wordeley_plugin_settings', $options );
 	}
 }

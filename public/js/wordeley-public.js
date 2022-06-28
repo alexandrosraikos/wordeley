@@ -149,7 +149,7 @@ $(document).ready(() => {
         var formData = new FormData(e.target);
 
         // Read page value and use intact.
-        var page = $('.wordeley-pagination .active').html();
+        var page = $('.wordeley-pagination .active').html() ?? 1;
         formData.append('article-page', page);
 
         makeWPRequest(
@@ -169,9 +169,11 @@ $(document).ready(() => {
         (e) => handleFilterSubmission(e));
 
     $("input").keypress((e) => {
-        if ($('.wordeley-catalogue').length) {
-            $(".wordeley-catalogue-filters form").submit();
-            return false;
+        if (e.keyCode == 13) {
+            if ($('.wordeley-catalogue').length) {
+                $(".wordeley-catalogue-filters form").submit();
+                return false;
+            }
         }
     });
 
@@ -182,7 +184,8 @@ $(document).ready(() => {
             e.preventDefault();
             // Read form data and use intact.
             var formData = new FormData($(".wordeley-catalogue-filters form")[0]);
-            formData.append('article-page', $(e.target).html());
+            var selectedPage = $(e.target).html();
+            formData.append('article-page', selectedPage ?? 1);
 
             makeWPRequest(
                 '.wordeley-catalogue',

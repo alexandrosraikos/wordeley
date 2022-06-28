@@ -68,6 +68,8 @@ class Wordeley_Author_Controller {
 	 * @return array The array of authors.
 	 */
 	public static function get_authors(): array {
+		$option  = get_option( 'wordeley_plugin_settings' );
+		$authors = $option['article_authors'] ?? '';
 		// Parse comma separated authors string.
 		return array_map(
 			function ( $author ) {

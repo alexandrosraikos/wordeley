@@ -145,11 +145,19 @@ class Wordeley_Public {
 			int $page_size = null,
 			int $page = null
 		) {
-			// Assign default on null values.
-			$authors   ??= Wordeley_Author_Controller::get_authors();
+			// Assign default on null or zero values.
+			if ( empty( $authors ) ) {
+				$authors = Wordeley_Author_Controller::get_authors();
+			}
 			$query     ??= '';
 			$page_size ??= Wordeley_Article_Controller::$default_page_size;
-			$page      ??= Wordeley_Article_Controller::$default_page;
+			if ( empty( $page_size ) ) {
+				$page_size = Wordeley_Article_Controller::$default_page_size;
+			}
+			$page ??= Wordeley_Article_Controller::$default_page;
+			if ( empty( $page ) ) {
+				$page = Wordeley_Article_Controller::$default_page;
+			}
 
 			// Get relevant articles.
 			$article_controller = new Wordeley_Article_Controller();

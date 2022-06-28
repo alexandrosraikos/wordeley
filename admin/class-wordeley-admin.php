@@ -264,37 +264,6 @@ class Wordeley_Admin {
 		);
 	}
 
-
-	/**
-	 * Update the Mendeley API Access Token.
-	 *
-	 * Retrieves a new Mendeley API Access Token and persists it to the database.
-	 *
-	 * @since 1.0.0
-	 * @throws ErrorException When credentials are missing.
-	 */
-	public static function update_access_token() {
-		$options = get_option( 'wordeley_plugin_settings' );
-		if ( empty( $options['application_id'] ) || empty( $options['application_secret'] ) ) {
-			throw new ErrorException( "You need to enter your Mendeley application's credentials in Wordeley settings." ); // TODO @alexandrosraikos: Translate.
-		}
-
-		$response                               = Wordeley_Communication_Controller::api_request(
-			'POST',
-			'/oauth/token',
-			array(
-				'grant_type'    => 'client_credentials',
-				'scope'         => 'all',
-				'client_id'     => $options['application_id'],
-				'client_secret' => $options['application_secret'],
-			),
-			true
-		);
-		$options['api_access_token']            = $response['access_token'];
-		$options['api_access_token_expires_at'] = time() + $response['expires_in'];
-		update_option( 'wordeley_plugin_settings', $options );
-	}
-
 	/**
 	 * Handles the retrieval of a Mendeley API Access Token
 	 * under AJAX or automatic cron contexts.
@@ -305,13 +274,13 @@ class Wordeley_Admin {
 		if ( wp_doing_ajax() ) {
 			Wordeley_Communication_Controller::ajax_handler(
 				function () {
-					Wordeley_Admin::update_access_token();
+					Wordeley_Communication_Controller::update_access_token();
 				}
 			);
 		} elseif ( wp_doing_cron() ) {
 			$options = get_option( 'wordeley_plugin_settings' );
 			if ( 'on' === ( $options['api_access_token_automatic'] ?? 'off' ) ) {
-				self::update_access_token();
+				Wordeley_Communication_Controller::update_access_token();
 			}
 		}
 	}
@@ -333,7 +302,7 @@ class Wordeley_Admin {
 		} elseif ( wp_doing_cron() ) {
 			$options = get_option( 'wordeley_plugin_settings' );
 			if ( 'on' === ( $options['refresh_cache_automatic'] ?? 'off' ) ) {
-				self::update_access_token();
+				Wordeley_Communication_Controller::update_access_token();
 			}
 		}
 	}

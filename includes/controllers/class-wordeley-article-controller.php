@@ -138,6 +138,12 @@ class Wordeley_Article_Controller {
 	) {
 		$authors  ??= Wordeley_Author_Controller::get_authors();
 		$end_year ??= $this->current_year;
+		if ( empty( $start_year ) ) {
+			$start_year = self::$earliest_year;
+		}
+		if ( empty( $end_year ) ) {
+			$end_year = $this->current_year;
+		}
 
 		// Filter relevant articles by author.
 		$this->articles = self::filter_articles_by_year(
@@ -326,6 +332,7 @@ class Wordeley_Article_Controller {
 		if ( self::cache_exists() ) {
 			return unlink( WORDELEY_FILE_STORE . '/articles.json' );
 		}
+		return true;
 	}
 
 	/**

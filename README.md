@@ -2,7 +2,7 @@
 
 # Wordeley 🔬
 
-A WordPress plugin to integrate and showcase your Mendeley articles.
+A WordPress plugin to integrate and showcase your [Mendeley](https://www.mendeley.com) articles.
 
 ## Features
 
