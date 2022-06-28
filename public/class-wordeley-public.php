@@ -161,14 +161,14 @@ class Wordeley_Public {
 
 			// Get relevant articles.
 			$article_controller = new Wordeley_Article_Controller();
-			$oldest_total_year  = Wordeley_Article_Controller::get_year( $article_controller->articles, false );
-			$recent_total_year  = Wordeley_Article_Controller::get_year( $article_controller->articles, true );
 			$article_controller->filter_articles(
 				$authors,
 				$query,
 				$start_year,
 				$end_year
 			);
+			$oldest_total_year   = Wordeley_Article_Controller::get_year( $article_controller->articles, false );
+			$recent_total_year   = Wordeley_Article_Controller::get_year( $article_controller->articles, true );
 			$articles            = $article_controller->get_page( $page, $page_size );
 			$total_article_pages = $article_controller->total_pages( $page_size );
 
