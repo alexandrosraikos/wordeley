@@ -1,7 +1,4 @@
 <?php
-
-use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
-
 /**
  * Provide a public-facing view for the plugin
  *
@@ -14,6 +11,20 @@ use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
  * @subpackage Wordeley/public/partials
  */
 
+/**
+ * Generates the article filters HTML.
+ *
+ * @since 1.0.0
+ * @author Alexandros Raikos <alexandros@araikos.gr>
+ * @param array  $author_information The formatted array of author information.
+ * @param string $query An active search term.
+ * @param int    $oldest_year The oldest year of available articles.
+ * @param int    $current_year The current year.
+ * @param int    $start_year The first year on a selected year range.
+ * @param int    $end_year The last year on a selected year range.
+ * @param int    $page_size The number of articles in a page.
+ * @return string The HTML article filters.
+ */
 function article_filters_html(
 	array $author_information,
 	string $query = null,
@@ -40,10 +51,11 @@ function article_filters_html(
 		};
 
 		// Page size selector options.
-		$page_size_options      = array( 15, 25, 50 );
-		$page_size_options_html = '';
-		for ( $j = 0; $j <= count( $page_size_options ) - 1; $j++ ) {
-			$selected                = ( $page_size_options[ $j ] == ( $page_size ) ) ? 'selected' : '';
+		$page_size_options       = array( 15, 25, 50 );
+		$page_size_options_html  = '';
+		$page_size_options_count = count( $page_size_options );
+		for ( $j = 0; $j <= $page_size_options_count - 1; $j++ ) {
+			$selected                = ( ( $page_size ) === $page_size_options[ $j ] ) ? 'selected' : '';
 			$page_size_options_html .= <<<HTML
             <option value="{$page_size_options[$j]}" {$selected}>{$page_size_options[$j]}</option>
             HTML;
@@ -94,6 +106,14 @@ function article_filters_html(
 	}
 }
 
+/**
+ * Generates the article list HTML.
+ *
+ * @since 1.0.0
+ * @author Alexandros Raikos <alexandros@araikos.gr>
+ * @param array $articles The requested articles.
+ * @return string The article list HTML.
+ */
 function article_list_html( array $articles = array() ) {
 	if ( empty( $articles ) ) {
 		return show_alert( 'No articles were found matching your criteria.', 'notice' );
@@ -111,7 +131,7 @@ function article_list_html( array $articles = array() ) {
 						$authors .= $author['first_name'] . ' ' . $author['last_name'];
 					}
 				}
-				if ( $key != count( $article['authors'] ) ) {
+				if ( count( $article['authors'] ) !== $key ) {
 					$authors .= ', ';
 				}
 			}
@@ -149,9 +169,22 @@ function article_list_html( array $articles = array() ) {
 }
 
 /**
- * The HTML view of the article catalogue.
+ * Generates the article catalogue HTML.
  *
- * @since  1.0.0
+ * @since 1.0.0
+ * @author Alexandros Raikos <alexandros@araikos.gr>
+ * @param array  $articles The requested articles.
+ * @param array  $author_information The formatted array of author information.
+ * @param string $query An active search term.
+ * @param int    $oldest_year The oldest year of available articles.
+ * @param int    $current_year The current year.
+ * @param int    $start_year The first year on a selected year range.
+ * @param int    $end_year The last year on a selected year range.
+ * @param int    $page_size The number of articles in a page.
+ * @param int    $page The page number.
+ * @param int    $total_articles The number of total articles.
+ * @param int    $total_pages The number of total pages.
+ * @return string The HTML article filters.
  */
 function catalogue_shortcode_html(
 	array $articles = null,
@@ -219,11 +252,10 @@ function catalogue_shortcode_html(
  * Prints an auto-disappearing error or notice box.
  * The close button is handled @see policycloud-marketplace-public.js
  *
- * @param string $message The message to be shown.
- * @param bool   $dismissable Whether the alert is dismissable or not.
- * @param string $type The type of message, a 'notice' or an 'error'.
- *
  * @since 1.0.0
+ * @author Alexandros Raikos <alexandros@araikos.gr>
+ * @param string $message The message to be shown.
+ * @param string $type The type of message, a 'notice' or an 'error'.
  */
 function show_alert( string $message, string $type = 'error' ) {
 	return '<div class="wordeley-notice wordeley-' . $type . '">' . $message . '</div>';

@@ -5,7 +5,6 @@
  * @since 1.0.0
  */
 
-
 var $ = jQuery;
 
 /**
@@ -72,11 +71,12 @@ function makeWPRequest(trigger, action, nonce, data, completion) {
         if (response.status === 200) {
             try {
                 // Parse the data.
-                if (response.responseText == '') {
+                if (response.responseText == "") {
                     completion();
-                }
-                else {
-                    completion(response.responseJSON ?? JSON.parse(response.responseText));
+                } else {
+                    completion(
+                        response.responseJSON ?? JSON.parse(response.responseText)
+                    );
                 }
             } catch (objError) {
                 completion();
@@ -96,8 +96,8 @@ function makeWPRequest(trigger, action, nonce, data, completion) {
 
         // Remove the loading class.
         $(trigger).removeClass("loading");
-        $(trigger).closest('form').removeClass("loading");
-        if (typeof trigger === 'string') {
+        $(trigger).closest("form").removeClass("loading");
+        if (typeof trigger === "string") {
             if (trigger.includes("button")) {
                 $(trigger).prop("disabled", false);
             }
@@ -106,8 +106,8 @@ function makeWPRequest(trigger, action, nonce, data, completion) {
 
     // Add the loading class.
     $(trigger).addClass("loading");
-    $(trigger).closest('form').addClass("loading");
-    if (typeof trigger === 'string') {
+    $(trigger).closest("form").addClass("loading");
+    if (typeof trigger === "string") {
         if (trigger.includes("button")) {
             $(trigger).prop("disabled", true);
         }
@@ -142,60 +142,64 @@ function makeWPRequest(trigger, action, nonce, data, completion) {
     }
 }
 
+/**
+ * Handle article filtering submissions.
+ *
+ * @since 1.0.0
+ * @author Alexandros Raikos <alexandros@araikos.gr>
+ */
+function requestFilteredArticles(e) {
+    e.preventDefault();
+    var formData = new FormData(e.target);
+
+    // Read page value and use intact.
+    var page = $(".wordeley-pagination .active").html() ?? 1;
+    formData.append("article-page", page);
+
+    makeWPRequest(
+        ".wordeley-catalogue",
+        "wordeley_get_articles",
+        PublicProperties.GetArticlesNonce,
+        formData,
+        (articlesHTML) => {
+            $(".wordeley-catalogue").replaceWith(articlesHTML);
+        }
+    );
+}
+
 $(document).ready(() => {
-    function handleFilterSubmission(e) {
 
-        e.preventDefault();
-        var formData = new FormData(e.target);
+    // When submitting a form via the submit button.
+    $("body").on("submit", ".wordeley-catalogue-filters form", (e) =>
+        requestFilteredArticles(e)
+    );
 
-        // Read page value and use intact.
-        var page = $('.wordeley-pagination .active').html() ?? 1;
-        formData.append('article-page', page);
-
-        makeWPRequest(
-            '.wordeley-catalogue',
-            'wordeley_get_articles',
-            PublicProperties.GetArticlesNonce,
-            formData,
-            (articlesHTML) => {
-                $('.wordeley-catalogue').replaceWith(articlesHTML);
-            }
-        );
-    }
-
-    $('body').on(
-        "submit",
-        ".wordeley-catalogue-filters form",
-        (e) => handleFilterSubmission(e));
-
+    // When submitting a form via the enter key.
     $("input").keypress((e) => {
         if (e.keyCode == 13) {
-            if ($('.wordeley-catalogue').length) {
+            if ($(".wordeley-catalogue").length) {
                 $(".wordeley-catalogue-filters form").submit();
                 return false;
             }
         }
     });
 
-    $("body").on(
-        'click',
-        '.wordeley-pagination a:not(.active)',
-        (e) => {
-            e.preventDefault();
-            // Read form data and use intact.
-            var formData = new FormData($(".wordeley-catalogue-filters form")[0]);
-            var selectedPage = $(e.target).html();
-            formData.append('article-page', selectedPage ?? 1);
+    // When switching pages using the page links.
+    $("body").on("click", ".wordeley-pagination a:not(.active)", (e) => {
+        e.preventDefault();
+        // Read form data and use intact.
+        var formData = new FormData($(".wordeley-catalogue-filters form")[0]);
+        var selectedPage = $(e.target).html();
+        formData.append("article-page", selectedPage ?? 1);
 
-            makeWPRequest(
-                '.wordeley-catalogue',
-                'wordeley_get_articles',
-                PublicProperties.GetArticlesNonce,
-                formData,
-                (articlesHTML) => {
-                    $('.wordeley-catalogue').replaceWith(articlesHTML);
-                }
-            );
-        }
-    )
+        makeWPRequest(
+            ".wordeley-catalogue",
+            "wordeley_get_articles",
+            PublicProperties.GetArticlesNonce,
+            formData,
+            (articlesHTML) => {
+                $(".wordeley-catalogue").replaceWith(articlesHTML);
+            }
+        );
+    });
 });
