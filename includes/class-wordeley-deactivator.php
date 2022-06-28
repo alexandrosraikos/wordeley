@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Fired during plugin deactivation
  *
@@ -20,8 +19,8 @@
  * @subpackage Wordeley/includes
  * @author     Alexandros Raikos <alexandros@araikos.gr>
  */
-class Wordeley_Deactivator
-{
+class Wordeley_Deactivator {
+
 
 	/**
 	 * Short Description. (use period)
@@ -30,9 +29,8 @@ class Wordeley_Deactivator
 	 *
 	 * @since    1.0.0
 	 */
-	public static function deactivate()
-	{
-		Wordeley::delete_article_cache();
-		delete_option('wordeley_plugin_settings');
+	public static function deactivate() {
+		Wordeley_Article_Controller::delete_article_cache();
+		delete_option( 'wordeley_plugin_settings' );
 	}
 }

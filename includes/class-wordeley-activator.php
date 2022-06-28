@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Fired during plugin activation
  *
@@ -20,8 +19,8 @@
  * @subpackage Wordeley/includes
  * @author     Alexandros Raikos <alexandros@araikos.gr>
  */
-class Wordeley_Activator
-{
+class Wordeley_Activator {
+
 
 	/**
 	 * Short Description. (use period)
@@ -30,7 +29,5 @@ class Wordeley_Activator
 	 *
 	 * @since    1.0.0
 	 */
-	public static function activate()
-	{
-	}
+	public static function activate() {     }
 }

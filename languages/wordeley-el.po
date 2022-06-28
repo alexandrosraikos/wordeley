@@ -6,8 +6,8 @@ msgstr "Ρυθμίσεις Wordeley"
 msgid "This is the options page for the Wordeley plugin."
 msgstr "Αυτή είναι η σελίδα ρυθμίσεων για την προσθήκη Wordeley."
 
-msgid "<p>Insert your Mendeley Developer API credentials below. Not registered a Mendeley application yet? Go to the <a href=\"https://dev.mendeley.com/myapps.html\" target=\"blank\">Mendeley Developer Portal</a>.</p>"
-msgstr "<p>Εισαγάγετε τα διαπιστευτήρια του Mendeley Developer API παρακάτω. Δεν έχετε καταχωρήσει ακόμα μια αίτηση Mendeley; Μεταβείτε στην <a href=\"https://dev.mendeley.com/myapps.html\" target=\"blank\">Πύλη προγραμματιστών Mendeley</a>.</p>"
+msgid "Insert your Mendeley Developer API credentials below. Not registered a Mendeley application yet? Go to the <a href=\"https://dev.mendeley.com/myapps.html\" target=\"blank\">Mendeley Developer Portal</a>."
+msgstr "Εισαγάγετε τα διαπιστευτήρια του Mendeley Developer API παρακάτω. Δεν έχετε καταχωρήσει ακόμα μια αίτηση Mendeley; Μεταβείτε στην <a href=\"https://dev.mendeley.com/myapps.html\" target=\"blank\">Πύλη προγραμματιστών Mendeley</a>."
 
 msgid "The numerical ID of the application registered in the Mendeley Developer Portal."
 msgstr "Το αριθμητικό αναγνωριστικό της εφαρμογής που είναι καταχωρημένο στην Πύλη προγραμματιστών Mendeley."
