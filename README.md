@@ -17,10 +17,9 @@ Simply setup WordPress, and install and enable the plugin.
 
 1. Head to the WordPress Dashboard > Settings > Wordeley
 1. Register a new Mendeley application in the [Mendeley Developers Portal](https://dev.mendeley.com/myapps.html)
-1. Save your Application ID and Application secret into the respective fields in the settings.
-1. Generate an access token.
-1. Provide a comma separated list of authors in the Authors field and Save.
-1. That's it! Now you can use the `[wordeley]` shortcode in pages and posts.
+1. Copy your Application ID and Application Secret into the respective fields in the settings.
+1. Provide a comma separated list of authors in the Authors field.
+1. Save. That's it! Now you can use the `[wordeley]` shortcode in pages and posts.
 
 ### Upgrade
 
@@ -28,11 +27,10 @@ To upgrade, simply download the latest `wordeley.zip` package of Wordeley from t
 
 ## Troubleshooting
 
-If you run into any issues, here are a few things you could try:
+If you run into any issues, here are a few things you could try first:
 
-- Generate a new access token in the Wordeley settings.
-- Refresh the article cache in the Wordeley settings.
-- Reinstall the plugin.
+- Refreshing the article cache in the Wordeley settings.
+- Reinstalling the plugin.
 
 ## Frequently Asked Questions
 
