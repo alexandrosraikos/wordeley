@@ -119,7 +119,6 @@ class Wordeley_Admin {
 		// Sanitize text fields.
 		$output['application_id']     = sanitize_text_field( $input['api_access_token'] );
 		$output['application_secret'] = sanitize_text_field( $input['api_access_token'] );
-		$output['api_access_token']   = sanitize_text_field( $input['api_access_token'] );
 
 		// Parse author list.
 		$output['article_authors'] = $input['article_authors'];
@@ -172,22 +171,6 @@ class Wordeley_Admin {
 			'application_secret',
 			'Application Secret',
 			'wordeley_plugin_application_secret',
-			'wordeley_plugin',
-			'section_one'
-		);
-
-		add_settings_field(
-			'api_access_token',
-			'Access Token',
-			'wordeley_plugin_api_access_token',
-			'wordeley_plugin',
-			'section_one'
-		);
-
-		add_settings_field(
-			'api_access_token_automatic',
-			__( 'Refresh token automatically', 'wordeley' ),
-			'wordeley_plugin_api_access_token_automatic',
 			'wordeley_plugin',
 			'section_one'
 		);
@@ -264,27 +247,6 @@ class Wordeley_Admin {
 		);
 	}
 
-	/**
-	 * Handles the retrieval of a Mendeley API Access Token
-	 * under AJAX or automatic cron contexts.
-	 *
-	 * @since 1.0.0
-	 */
-	public function generate_access_token() {
-		if ( wp_doing_ajax() ) {
-			Wordeley_Communication_Controller::ajax_handler(
-				function () {
-					Wordeley_Communication_Controller::update_access_token();
-				}
-			);
-		} elseif ( wp_doing_cron() ) {
-			$options = get_option( 'wordeley_plugin_settings' );
-			if ( 'on' === ( $options['api_access_token_automatic'] ?? 'off' ) ) {
-				Wordeley_Communication_Controller::update_access_token();
-			}
-		}
-	}
-
 
 	/**
 	 * Handles cache refreshing under AJAX or automatic
@@ -302,7 +264,7 @@ class Wordeley_Admin {
 		} elseif ( wp_doing_cron() ) {
 			$options = get_option( 'wordeley_plugin_settings' );
 			if ( 'on' === ( $options['refresh_cache_automatic'] ?? 'off' ) ) {
-				Wordeley_Communication_Controller::update_access_token();
+				Wordeley_Article_Controller::update_article_cache( false );
 			}
 		}
 	}

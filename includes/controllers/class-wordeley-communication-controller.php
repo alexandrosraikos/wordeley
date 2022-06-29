@@ -36,13 +36,13 @@ class Wordeley_Communication_Controller {
 	public static function ajax_handler( $completion ): void {
 		// Prepare action identifier.
 		if ( empty( $_POST['action'] ) ) {
-			throw new RuntimeException( 'The action was not defined.' ); // TODO @alexandrosraikos: Translate.
+			throw new RuntimeException( 'The action was not defined.' );
 		}
 		$action = sanitize_key( $_POST['action'] );
 
 		// Prepare nonce data.
 		if ( empty( $_POST['nonce'] ) ) {
-			throw new RuntimeException( 'The action related nonce was not included.' ); // TODO @alexandrosraikos: Translate.
+			throw new RuntimeException( 'The action related nonce was not included.' );
 		} else {
 			$nonce = sanitize_key( $_POST['nonce'] );
 		}
@@ -50,7 +50,7 @@ class Wordeley_Communication_Controller {
 		// Verify action related nonce.
 		if ( ! wp_verify_nonce( $nonce, $action ) ) {
 			http_response_code( 403 );
-			die( 'Unverified request for action: ' . esc_attr( $action ) ); // TODO @alexandrosraikos: Translate.
+			die( 'Unverified request for action: ' . esc_attr( $action ) );
 		}
 
 		try {
@@ -72,7 +72,7 @@ class Wordeley_Communication_Controller {
 			} else {
 				$data = wp_json_encode( $data );
 				if ( false === $data ) {
-					throw new RuntimeException( 'There was an error while encoding the data to JSON.' ); // TODO @alexandrosraikos: Translate.
+					throw new RuntimeException( 'There was an error while encoding the data to JSON.' );
 				} else {
 					http_response_code( 200 );
 					die( $data );
@@ -90,31 +90,23 @@ class Wordeley_Communication_Controller {
 	 * @param string $http_method The standardized HTTP method used for the request.
 	 * @param string $uri The URI of the Mendeley API resource.
 	 * @param array  $data The data to be sent according to the documented schema.
-	 * @param bool   $requesting_access Whether this request is a request for an access token.
+	 * @param bool   $request_access_token Whether this request is a request for an access token.
 	 *
-	 * @throws InvalidArgumentException For missing WordPress settings.
 	 * @throws ErrorException For connectivity and other API issues.
 	 *
 	 * @since   1.0.0
 	 * @author  Alexandros Raikos <alexandros@araikos.gr>
 	 */
-	public static function api_request( $http_method, $uri, $data = array(), $requesting_access = false ) {
-
-		// Retrieve access token.
-		$options      = get_option( 'wordeley_plugin_settings' );
-		$access_token = $options['api_access_token'] ?? null;
-		if ( empty( $access_token ) && ! $requesting_access ) {
-			throw new InvalidArgumentException( 'You need to generate a Mendeley API access token in Wordeley settings.' ); // TODO @alexandrosraikos: Translate.
-		}
+	public static function api_request( $http_method, $uri, $data = array(), $request_access_token = false ) {
 
 		// Prepare headers and authorization data.
-		if ( $requesting_access ) {
+		if ( $request_access_token ) {
 			$headers = array(
 				'Content-Type' => 'application/x-www-form-urlencoded',
 			);
 		} else {
 			$headers = array(
-				'Authorization' => 'Bearer ' . rawurlencode( $access_token ),
+				'Authorization' => 'Bearer ' . rawurlencode( self::get_access_token() ),
 				'Accept'        => 'application/vnd.mendeley-document.1+json',
 			);
 		}
@@ -134,7 +126,7 @@ class Wordeley_Communication_Controller {
 		if ( is_wp_error( $response ) ) {
 			throw new ErrorException(
 				'Unable to reach the Mendeley API. More details: ' . $response->get_error_message()
-			); // TODO @alexandrosraikos: Translate.
+			);
 		}
 
 		// Get the response data.
@@ -145,14 +137,52 @@ class Wordeley_Communication_Controller {
 		if ( 200 !== $http_code && 201 !== $http_code && 204 !== $http_code && 404 !== $http_code ) {
 			throw new ErrorException(
 				'The Mendeley API returned an HTTP ' . $http_code . ' status code. More information: ' . esc_attr( $data ?? 'Not provided' ) . '.'
-			); // TODO @alexandrosraikos: Translate.
+			);
 		} else {
 			if ( ! empty( $data ) && is_string( $data ) ) {
 				$decoded = json_decode( $data, true );
 				return ( json_last_error() === JSON_ERROR_NONE ) ? $decoded : $data;
 			} else {
-				throw new ErrorException( 'The response was invalid.' ); // TODO @alexandrosraikos: Translate.
+				throw new ErrorException( 'The response was invalid.' );
 			};
+		}
+	}
+
+	/**
+	 * Check the Mendeley API access credentials.
+	 *
+	 * Checks for existing Application ID, Secret and Access Token.
+	 *
+	 * @since 1.0.0
+	 * @throws ErrorException When credentials are missing.
+	 */
+	public static function check_adequate_access() {
+		// Check Mendeley application credentials.
+		$options = get_option( 'wordeley_plugin_settings' );
+		if ( empty( $options['application_id'] ) || empty( $options['application_secret'] ) ) {
+			throw new ErrorException(
+				__( "You need to enter your Mendeley application's credentials in Wordeley settings.", 'wordeley' )
+			);
+		}
+
+		// Check for valid access token.
+		$access_options = get_option( 'wordeley_plugin_access_settings' );
+		if ( ! empty( $access_options['api_access_token'] ) && ! empty( $access_options['api_access_token_expires_at'] ) ) {
+			return ( ( $access_options['api_access_token_expires_at'] - time() ) > 0 );
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Get the access token from the database.
+	 */
+	public static function get_access_token() {
+		if ( self::check_adequate_access() ) {
+			$access_options = get_option( 'wordeley_plugin_access_settings' );
+			return $access_options['api_access_token'];
+		} else {
+			return self::update_access_token( true, true );
 		}
 	}
 
@@ -162,27 +192,31 @@ class Wordeley_Communication_Controller {
 	 * Retrieves a new Mendeley API Access Token and persists it to the database.
 	 *
 	 * @since 1.0.0
+	 * @param bool $return Whether to return the retrieved access token.
+	 * @param bool $force Whether to force updating.
 	 * @throws ErrorException When credentials are missing.
 	 */
-	public static function update_access_token() {
-		$options = get_option( 'wordeley_plugin_settings' );
-		if ( empty( $options['application_id'] ) || empty( $options['application_secret'] ) ) {
-			throw new ErrorException( "You need to enter your Mendeley application's credentials in Wordeley settings." ); // TODO @alexandrosraikos: Translate.
+	public static function update_access_token( bool $return = false, bool $force = false ) {
+		if ( ! self::check_adequate_access() || $force ) {
+			$options                                       = get_option( 'wordeley_plugin_settings' );
+			$response                                      = self::api_request(
+				'POST',
+				'/oauth/token',
+				array(
+					'grant_type'    => 'client_credentials',
+					'scope'         => 'all',
+					'client_id'     => $options['application_id'],
+					'client_secret' => $options['application_secret'],
+				),
+				true
+			);
+			$access_options                                = array();
+			$access_options['api_access_token']            = $response['access_token'];
+			$access_options['api_access_token_expires_at'] = time() + $response['expires_in'];
+			update_option( 'wordeley_plugin_access_settings', $access_options );
+			if ( $return ) {
+				return $response['access_token'];
+			}
 		}
-
-		$response                               = self::api_request(
-			'POST',
-			'/oauth/token',
-			array(
-				'grant_type'    => 'client_credentials',
-				'scope'         => 'all',
-				'client_id'     => $options['application_id'],
-				'client_secret' => $options['application_secret'],
-			),
-			true
-		);
-		$options['api_access_token']            = $response['access_token'];
-		$options['api_access_token_expires_at'] = time() + $response['expires_in'];
-		update_option( 'wordeley_plugin_settings', $options );
 	}
 }

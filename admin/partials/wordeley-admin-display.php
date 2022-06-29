@@ -38,7 +38,7 @@ function render_settings_page() {   ?>
  * @author Alexandros Raikos <alexandros@araikos.gr>
  */
 function wordeley_plugin_section_one() {
-	echo '<p>' . esc_html( __( 'Insert your Mendeley Developer API credentials below. Not registered a Mendeley application yet? Go to the <a href="https://dev.mendeley.com/myapps.html" target="blank">Mendeley Developer Portal</a>.', 'wordeley' ) ) . '</p>';
+	echo '<p>' . __( 'Insert your Mendeley Developer API credentials below. Not registered a Mendeley application yet? Go to the <a href="https://dev.mendeley.com/myapps.html" target="blank">Mendeley Developer Portal</a>.', 'wordeley' ) . '</p>';
 }
 
 /**
@@ -75,53 +75,6 @@ function wordeley_plugin_application_secret() {
 	<?php
 }
 
-/**
- * Render the settings' API Access Token field with a generate button.
- *
- * @since 1.0.0
- * @author Alexandros Raikos <alexandros@araikos.gr>
- */
-function wordeley_plugin_api_access_token() {
-	$options = get_option( 'wordeley_plugin_settings' );
-	$value   = $options['api_access_token'] ?? null;
-	$enabled = ! empty( $options['application_id'] ?? null ) && ! empty( $options['application_secret'] ?? null );
-
-	if ( ! empty( $options['api_access_token_expires_at'] ) ) {
-		$token_expires_in = gmdate( 'H:i:s', ( $options['api_access_token_expires_at'] - time() ) );
-	}
-	?>
-	<input type="text" readonly="readonly" name="wordeley_plugin_settings[api_access_token]" value="<?php echo ( ( ! empty( $value ) ) ? esc_html( $value ) : '' ); ?>" />
-	<button class="button" action="wordeley-generate-access-token" <?php echo ( ! $enabled ) ? 'disabled' : ''; ?>>
-		<?php echo ( empty( $value ) ) ? 'Generate' : 'Refresh'; ?>
-	</button>
-	<p class="description">
-		<?php
-		echo esc_html(
-			( empty( $value ) ) ?
-			__( 'The access token can be generated after entering your credentials.', 'wordeley' ) :
-			sprintf( __( "Your application's access token generated via the Mendeley API, valid for %s and it will be refreshed automatically.", 'wordeley' ), $token_expires_in )
-		);
-		?>
-	</p>
-	<?php
-}
-
-/**
- * Render the settings' API Access Token automatic refresh field.
- *
- * @since 1.0.0
- * @author Alexandros Raikos <alexandros@araikos.gr>
- */
-function wordeley_plugin_api_access_token_automatic() {
-	$options = get_option( 'wordeley_plugin_settings' );
-	$checked = ( 'on' === ( $options['api_access_token_automatic'] ?? '' ) ) ? 'checked' : '';
-	?>
-	<input type="checkbox" name="wordeley_plugin_settings[api_access_token_automatic]" <?php echo esc_html( $checked ); ?> />
-	<p>
-		<?php echo esc_html( __( 'The token will be refreshed automatically every hour.', 'wordeley' ) ); ?>
-	</p>
-	<?php
-}
 /**
  * Render the settings' section two description.
  *

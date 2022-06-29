@@ -4,10 +4,6 @@
 
 A WordPress plugin to integrate and showcase your [Mendeley](https://www.mendeley.com) articles.
 
-## Features
-
-_TBA_
-
 ## Getting Started
 
 ### Installation
@@ -19,11 +15,24 @@ Simply setup WordPress, and install and enable the plugin.
 
 ### Setup
 
-_TBA_
+1. Head to the WordPress Dashboard > Settings > Wordeley
+1. Register a new Mendeley application in the [Mendeley Developers Portal](https://dev.mendeley.com/myapps.html)
+1. Save your Application ID and Application secret into the respective fields in the settings.
+1. Generate an access token.
+1. Provide a comma separated list of authors in the Authors field and Save.
+1. That's it! Now you can use the `[wordeley]` shortcode in pages and posts.
 
 ### Upgrade
 
 To upgrade, simply download the latest `wordeley.zip` package of Wordeley from the latest release in the releases page and install it via the WordPress Dashboard.
+
+## Troubleshooting
+
+If you run into any issues, here are a few things you could try:
+
+- Generate a new access token in the Wordeley settings.
+- Refresh the article cache in the Wordeley settings.
+- Reinstall the plugin.
 
 ## Frequently Asked Questions
 

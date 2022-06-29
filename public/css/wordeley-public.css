@@ -1,109 +1,334 @@
 /**
- * All of the CSS for your public-facing functionality should be
+ * All of the CSS in public-facing functionality is
  * included in this file.
+ *
+ * @author Alexandros Raikos <alexandros@araikos.gr>
+ */
+
+/**
+ * ------------
+ * Global 
+ * ------------
  */
 
 :root {
-  --wordeley-color-text-secondary: rgb(100, 100, 100);
+  /**
+  * 
+  * Colors
+  * ------------
+  */
   --wordeley-color-background-secondary: rgb(245, 245, 245);
+  --wordeley-color-text-secondary: rgb(100, 100, 100);
   --wordeley-color-border: rgb(220, 220, 220);
 }
 
-/* Notices */
+/**
+ * ------------
+ * Alerts 
+ * ------------
+ */
 
-.wordeley-notice {
-  color: rgb(0, 0, 56);
-  background-color: rgb(202, 229, 255);
-  padding: 20px;
-  border-radius: 10px;
-  font-size: small;
+/* The message alert box container. */
+.wordeley-alert {
   width: 100%;
+  padding: 20px;
+  font-size: small;
+  border-radius: 10px;
 }
 
-.wordeley-notice.wordeley-error {
-  color: red;
+/* A soft blue variant of the message alert box. */
+.wordeley-alert[type="notice"] {
+  background-color: rgb(202, 229, 255);
+  color: rgb(0, 0, 56);
+}
+
+/** 
+ * A bright red variant of the message alert box,
+ * denoting a serious error.
+ */
+.wordeley-alert[type="error"] {
   background-color: rgb(255, 208, 208);
+  color: red;
 }
 
-/* Catalogue View */
+/**
+ * ------------
+ * Article Catalogue
+ * ------------
+ */
 
-.wordeley-catalogue {
+/* The main catalogue container. */
+.wordeley-article-catalogue {
   display: flex;
   align-items: flex-start;
   transition: opacity 0.2s ease-in-out;
 }
-.wordeley-catalogue.loading {
+
+/* Wrap articles below filters on mobile. */
+@media screen and (max-width: 800px) {
+  .wordeley-article-catalogue {
+    flex-wrap: wrap;
+  }
+}
+
+/**
+ * An opacity wrapper when the container is refreshing,
+ * to indicate active loading.
+ */
+.wordeley-article-catalogue.loading {
   opacity: 0.5;
   cursor: wait;
   transition: opacity 0.2s ease-in-out;
 }
 
-/* Catalogue View - Filters */
+/**
+ * 
+ * Filtering
+ * ------------
+ */
 
-.wordeley-catalogue > .wordeley-catalogue-filters {
-  margin: 0 10px 20px 0;
-  padding: 20px;
-  background-color: var(--wordeley-color-background-secondary);
-  border-radius: 10px;
+/* The filter sidebar container. */
+.wordeley-article-catalogue > .wordeley-article-catalogue-filters {
   flex-basis: 250px;
   min-width: 300px;
+  padding: 20px;
+  margin: 0 10px 20px 0;
+  background-color: var(--wordeley-color-background-secondary);
+  border-radius: 10px;
 }
 
-.wordeley-catalogue > .wordeley-catalogue-filters > h2 {
-  font-size: 110%;
+/* Fill viewport width on mobile. */
+@media screen and (max-width: 800px) {
+  .wordeley-article-catalogue > .wordeley-article-catalogue-filters {
+    flex: 1;
+    margin: 0 0 15px 0;
+  }
 }
 
-/* Catalogue View - List Header */
-.wordeley-catalogue .wordeley-total-article-label {
-  width: 100%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  color: var(--wordeley-color-text-secondary);
-  font-weight: bold;
+/* Adjust box and font dimensions for filter titles. */
+.wordeley-article-catalogue > .wordeley-article-catalogue-filters > form > h4 {
+  margin: 16px 0 8px 0;
+  font-size: 16px;
+}
+
+/* Remove top margin from the first heading. */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-filters
+  > form
+  > h4:first-of-type {
+  margin-top: 0;
+}
+
+/**
+ * Apply uniform font size to form
+ * labels of all levels.
+ */
+.wordeley-article-catalogue > .wordeley-article-catalogue-filters > form label {
   font-size: 14px;
 }
 
-/* Catalogue View - List */
-
-.wordeley-catalogue > .wordeley-catalogue-list {
-  margin: 0 0 20px 10px;
+/**
+ * Apply uniform box properties into
+ * all form inputs (except checkboxes).
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-filters
+  > form
+  input:not([type="checkbox"]) {
+  display: block;
   width: 100%;
-  flex-basis: 100%;
 }
 
-.wordeley-catalogue > .wordeley-catalogue-list > ul {
-  list-style-type: none;
-  margin: 0;
+/**
+ * Apply block attribute to the page size selector.
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-filters
+  > form
+  > label.wordeley-article-catalogue-page-size {
+  display: block;
+}
+
+/**
+ * Uniform page size selector dimensions
+ * and add menu list caret appearance on most browsers.
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-filters
+  > form
+  > label.wordeley-article-catalogue-page-size
+  > select {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  -webkit-appearance: menulist;
+}
+
+/**
+ * Show pointer type cursor on page size hover.
+ */
+.wordeley-article-catalogue
+  .wordeley-article-catalogue-filters
+  form
+  > label.wordeley-article-catalogue-page-size
+  > select:hover {
+  cursor: pointer;
+}
+
+/**
+ * Arrange both year inputs horizontally.
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-filters
+  > form
+  > .wordeley-article-catalogue-filters-author {
+  display: block;
+}
+/**
+ * Arrange both year inputs horizontally.
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-filters
+  > .wordeley-article-catalogue-filters-years {
+  display: flex;
+  justify-content: space-between;
+}
+
+/**
+ * Uniform dimensions between year inputs.
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-filters
+  > .wordeley-article-catalogue-filters-years
+  > * {
+  flex: 1;
+  margin-right: 10px;
+}
+
+/**
+ * Remove number spinners from most web browsers
+ * for year range inputs.
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-filters
+  > form
+  > .wordeley-article-catalogue-filters-years
+  input[type="number"]::-webkit-inner-spin-button,
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-filters
+  > form
+  > .wordeley-article-catalogue-filters-years
+  input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+/**
+ * Add some whitespace above the submit button
+ * to differentiate it.
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-filters
+  > form
+  button[type="submit"] {
+  margin-top: 20px;
+}
+
+/**
+ * 
+ * Header
+ * ------------
+ */
+
+/**
+ * Format the total articles number as the list's header.
+ */
+.wordeley-article-catalogue > .wordeley-article-catalogue-list > header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  width: 100%;
+  color: var(--wordeley-color-text-secondary);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/**
+ * 
+ * List
+ * ------------
+ */
+
+/**
+ * The article list container.
+ */
+.wordeley-article-catalogue > .wordeley-article-catalogue-list {
+  flex-basis: 100%;
+  width: 100%;
+  margin: 0 0 20px 10px;
+}
+
+/* Fill viewport width on mobile. */
+@media screen and (max-width: 800px) {
+  .wordeley-article-catalogue > .wordeley-article-catalogue-list {
+    margin: 0;
+  }
+}
+
+/**
+ * The article list.
+ */
+.wordeley-article-catalogue > .wordeley-article-catalogue-list > ul {
   width: 100%;
   padding: 0;
+  margin: 0;
+  list-style-type: none;
 }
 
-.wordeley-catalogue > .wordeley-catalogue-list > ul:first-of-type > li {
+/**
+ * The article list item.
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-list
+  > ul:first-of-type
+  > li {
   padding: 20px;
   margin: 0 0 10px 0;
 }
 
-.wordeley-catalogue
-  > .wordeley-catalogue-list
+/**
+ * Add bottom border to all but the last article shown.
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-list
   > ul:first-of-type
   > li:not(:last-of-type) {
   border-bottom: 0.5px solid var(--wordeley-color-border);
 }
 
-.wordeley-catalogue > .wordeley-catalogue-list > ul > li > h3 {
+/**
+ * The article title.
+ */
+.wordeley-article-catalogue > .wordeley-article-catalogue-list > ul > li > h3 {
+  margin-bottom: 10px;
   font-size: 110%;
-  margin-bottom: 10px;
 }
 
-.wordeley-catalogue > .wordeley-catalogue-list > ul > li > .metadata {
-  font-size: small;
+/**
+ * The article metadata container.
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-list
+  > ul
+  > li
+  > .metadata {
+  margin-bottom: 10px;
   color: var(--wordeley-color-text-secondary);
-  margin-bottom: 10px;
+  font-size: small;
 }
 
-.wordeley-catalogue
-  > .wordeley-catalogue-list
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-list
   > ul
   > li
   > .metadata
@@ -112,91 +337,56 @@
   font-weight: bold;
 }
 
-.wordeley-catalogue > .wordeley-catalogue-list > ul > li > .information > a {
-  font-weight: bold;
+/**
+ * The article information link.
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-list
+  > ul
+  > li
+  > .information
+  > a {
   color: var(--wordeley-color-text-secondary);
+  font-weight: bold;
   text-decoration: none;
 }
 
-.wordeley-catalogue .wordeley-pagination {
+/**
+ * 
+ * Pagination
+ * ------------
+ */
+
+/**
+  * The pagination container below the articles.
+  */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-list
+  > .wordeley-article-catalogue-pagination {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 15px;
 }
 
-.wordeley-catalogue .wordeley-pagination li {
+/**
+ * Slight dimension tweaks on the page numbers.
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-list
+  > .wordeley-article-catalogue-pagination
+  > li {
   padding: 5px;
 }
 
-.wordeley-catalogue .wordeley-pagination .active {
+/**
+ * Make active page text strong.
+ */
+.wordeley-article-catalogue
+  > .wordeley-article-catalogue-list
+  > .wordeley-article-catalogue-pagination
+  .active {
   font-weight: bold;
-}
-
-.wordeley-catalogue .wordeley-catalogue-filters h4 {
-  font-size: 16px;
-  margin: 16px 0 8px 0;
-}
-
-.wordeley-catalogue .wordeley-catalogue-filters h4:first-of-type {
-  margin-top: 0;
-}
-
-.wordeley-catalogue .wordeley-catalogue-filters form label {
-  font-size: 14px;
-}
-
-.wordeley-catalogue
-  .wordeley-catalogue-filters
-  form
-  input:not([type="checkbox"]) {
-  display: block;
-  width: 100%;
-}
-
-.wordeley-catalogue .wordeley-catalogue-filters form label:last-of-type {
-  display: block;
-}
-
-.wordeley-catalogue .wordeley-catalogue-filters .years-filter {
-  display: flex;
-  justify-content: space-between;
-}
-
-.wordeley-catalogue .wordeley-catalogue-filters .years-filter > * {
-  flex: 1;
-  margin-right: 10px;
-}
-
-.wordeley-catalogue
-  .wordeley-catalogue-filters
-  form
-  label
-  input[type="number"]::-webkit-inner-spin-button,
-.wordeley-catalogue
-  .wordeley-catalogue-filters
-  form
-  label
-  input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none !important;
-  margin: 0 !important;
-}
-
-.wordeley-catalogue .wordeley-catalogue-filters form label:last-of-type select {
-  display: block;
-  width: 100%;
-  -webkit-appearance: menulist;
-}
-
-.wordeley-catalogue
-  .wordeley-catalogue-filters
-  form
-  label:last-of-type
-  select:hover {
-  cursor: pointer;
-}
-
-.wordeley-catalogue .wordeley-catalogue-filters form button {
-  margin-top: 20px;
 }

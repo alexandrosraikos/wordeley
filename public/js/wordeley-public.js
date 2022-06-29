@@ -153,16 +153,16 @@ function requestFilteredArticles(e) {
     var formData = new FormData(e.target);
 
     // Read page value and use intact.
-    var page = $(".wordeley-pagination .active").html() ?? 1;
+    var page = $(".wordeley-article-catalogue-pagination .active").html() ?? 1;
     formData.append("article-page", page);
 
     makeWPRequest(
-        ".wordeley-catalogue",
+        ".wordeley-article-catalogue",
         "wordeley_get_articles",
         PublicProperties.GetArticlesNonce,
         formData,
         (articlesHTML) => {
-            $(".wordeley-catalogue").replaceWith(articlesHTML);
+            $(".wordeley-article-catalogue").replaceWith(articlesHTML);
         }
     );
 }
@@ -170,35 +170,35 @@ function requestFilteredArticles(e) {
 $(document).ready(() => {
 
     // When submitting a form via the submit button.
-    $("body").on("submit", ".wordeley-catalogue-filters form", (e) =>
+    $("body").on("submit", ".wordeley-article-catalogue-filters form", (e) =>
         requestFilteredArticles(e)
     );
 
     // When submitting a form via the enter key.
     $("input").keypress((e) => {
         if (e.keyCode == 13) {
-            if ($(".wordeley-catalogue").length) {
-                $(".wordeley-catalogue-filters form").submit();
+            if ($(".wordeley-article-catalogue").length) {
+                $(".wordeley-article-catalogue-filters form").submit();
                 return false;
             }
         }
     });
 
     // When switching pages using the page links.
-    $("body").on("click", ".wordeley-pagination a:not(.active)", (e) => {
+    $("body").on("click", ".wordeley-article-catalogue-pagination a:not(.active)", (e) => {
         e.preventDefault();
         // Read form data and use intact.
-        var formData = new FormData($(".wordeley-catalogue-filters form")[0]);
+        var formData = new FormData($(".wordeley-article-catalogue-filters form")[0]);
         var selectedPage = $(e.target).html();
         formData.append("article-page", selectedPage ?? 1);
 
         makeWPRequest(
-            ".wordeley-catalogue",
+            ".wordeley-article-catalogue",
             "wordeley_get_articles",
             PublicProperties.GetArticlesNonce,
             formData,
             (articlesHTML) => {
-                $(".wordeley-catalogue").replaceWith(articlesHTML);
+                $(".wordeley-article-catalogue").replaceWith(articlesHTML);
             }
         );
     });

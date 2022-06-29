@@ -32,5 +32,6 @@ class Wordeley_Deactivator {
 	public static function deactivate() {
 		Wordeley_Article_Controller::delete_article_cache();
 		delete_option( 'wordeley_plugin_settings' );
+		delete_option( 'wordeley_plugin_access_settings' );
 	}
 }

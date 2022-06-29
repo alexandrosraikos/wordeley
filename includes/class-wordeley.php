@@ -182,19 +182,8 @@ class Wordeley {
 		/**
 		 * Hook all cron-based jobs and define schedules.
 		 */
-		$this->loader->add_action( 'wordeley_access_token_cron_handler_hook', $plugin_admin, 'generate_access_token' );
 		$this->loader->add_action( 'wordeley_refresh_cache_cron_handler_hook', $plugin_admin, 'refresh_cache_handler' );
 
-		add_filter(
-			'cron_schedules',
-			function ( $schedules ) {
-				$schedules['hourly'] = array(
-					'interval' => 3600,
-					'display'  => 'Every 60 minutes.',
-				);
-				return $schedules;
-			}
-		);
 		add_filter(
 			'cron_schedules',
 			function ( $schedules ) {
@@ -205,9 +194,6 @@ class Wordeley {
 				return $schedules;
 			}
 		);
-		if ( ! wp_next_scheduled( 'wordeley_access_token_cron_handler_hook' ) ) {
-			wp_schedule_event( time(), 'hourly', 'wordeley_access_token_cron_handler_hook' );
-		}
 		if ( ! wp_next_scheduled( 'wordeley_refresh_cache_cron_handler_hook' ) ) {
 			wp_schedule_event( time(), 'monthly', 'wordeley_refresh_cache_cron_handler_hook' );
 		}

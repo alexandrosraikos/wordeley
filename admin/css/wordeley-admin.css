@@ -11,3 +11,8 @@
   color: #cf2e2e;
   border-color: #cf2e2e;
 }
+
+.button.loading {
+  opacity: 0.5;
+  cursor: progress;
+}

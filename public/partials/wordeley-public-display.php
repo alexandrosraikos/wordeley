@@ -44,7 +44,7 @@ function article_filters_html(
 			$checked                    = $author['selected'] ? 'checked' : '';
 			$author_article_count_label = $author['selected'] ? ' (' . $author['article_count'] . ')' : '';
 			$checkboxes                .= <<<HTML
-                <label>
+                <label class="wordeley-article-catalogue-filters-author">
                     <input type="checkbox" name="authors[]" value="{$author['name']}" id="" {$checked} /> {$author['name']}{$author_article_count_label}
                 </label>
             HTML;
@@ -83,7 +83,7 @@ function article_filters_html(
                 <h4>{$authors_label}</h4>
                 {$checkboxes}
                 <h4>{$years_label}</h4>
-                <div class="years-filter">
+                <div class="wordeley-article-catalogue-filters-years">
                     <label>
                         {$years_from_label}
                     <input type="number" name="starting-year" min="{$oldest_year}" max="{$current_year}" placeholder="{$oldest_year}" value="{$start_year}">
@@ -94,7 +94,7 @@ function article_filters_html(
                     </label>
                 </div>
                 <h4>{$view_label}</h4>
-                <label>
+                <label class="wordeley-article-catalogue-page-size">
                 {$articles_per_page_label}
                 <select name="articles-per-page">
                     {$page_size_options_html}
@@ -222,7 +222,7 @@ function catalogue_shortcode_html(
         HTML;
 	}
 	$page_selector = <<<HTML
-        <ul class="wordeley-pagination">
+        <ul class="wordeley-article-catalogue-pagination">
             {$page_selector}
         </ul>
     HTML;
@@ -230,14 +230,14 @@ function catalogue_shortcode_html(
 	$total_articles_label = __( 'total articles', 'wordeley' );
 
 	return <<<HTML
-        <div class="wordeley-catalogue">
-            <div class="wordeley-catalogue-filters">
+        <div class="wordeley-article-catalogue">
+            <div class="wordeley-article-catalogue-filters">
                 {$filters}
             </div>
-            <div class="wordeley-catalogue-list">
-                <div class="wordeley-total-article-label">
+            <div class="wordeley-article-catalogue-list">
+                <header>
                     {$total_articles} {$total_articles_label}
-                </div>
+                </header>
                 <ul>
                     {$list}
                 </ul>
@@ -258,5 +258,5 @@ function catalogue_shortcode_html(
  * @param string $type The type of message, a 'notice' or an 'error'.
  */
 function show_alert( string $message, string $type = 'error' ) {
-	return '<div class="wordeley-notice wordeley-' . $type . '">' . $message . '</div>';
+	return '<div class="wordeley-alert" type="' . $type . '">' . $message . '</div>';
 }
