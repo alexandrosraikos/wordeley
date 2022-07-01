@@ -365,15 +365,18 @@ class Wordeley_Article_Controller {
 		$author_controller = new Wordeley_Author_Controller();
 
 		foreach ( $author_controller->authors as $author ) {
-			$olders_exist = true;
-			$start_year   = intval( gmdate( 'Y' ) );
-			while ( $olders_exist ) {
-				$response     = Wordeley_Communication_Controller::api_request(
+			$blank_year_limit = 2;
+			$start_year       = intval( gmdate( 'Y' ) );
+			while ( $blank_year_limit >= 0 ) {
+				$response = Wordeley_Communication_Controller::api_request(
 					'GET',
 					'/search/catalog?author=' . rawurlencode( $author ) . '&limit=100&min_year=' . $start_year . '&max_year=' . $start_year
 				);
-				$olders_exist = ! empty( $response );
-				$articles     = array_merge( $articles, $response );
+				if ( empty( $response ) ) {
+					--$blank_year_limit;
+				} else {
+					$articles = array_merge( $articles, $response );
+				}
 				--$start_year;
 			}
 		}
