@@ -396,6 +396,7 @@ class Wordeley_Article_Controller {
 		return $articles;
 	}
 
+
 	/**
 	 * Get all the articles by the saved authors.
 	 *
@@ -407,6 +408,13 @@ class Wordeley_Article_Controller {
 	 * @return array The array of articles.
 	 */
 	private function get_articles(): array {
-		return self::cache_exists() ? self::get_cache() : self::update_article_cache( true );
+		$articles = self::cache_exists() ? self::get_cache() : self::update_article_cache( true );
+		usort(
+			$articles,
+			function ( $a, $b ) {
+				return $a['year'] < $b['year'];
+			}
+		);
+		return $articles;
 	}
 }
