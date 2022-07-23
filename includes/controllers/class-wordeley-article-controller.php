@@ -185,6 +185,7 @@ class Wordeley_Article_Controller {
 		}
 	}
 
+
 	/**
 	 * Filter by specific author names.
 	 *
@@ -197,23 +198,34 @@ class Wordeley_Article_Controller {
 		array $articles,
 		array $authors
 		): array {
-		if ( Wordeley_Author_Controller::get_authors() === $authors ) {
-			return $articles;
-		}
 		return array_filter(
 			$articles,
 			function ( $article ) use ( $authors ) {
-				return count(
-					array_intersect(
-						$authors,
-						array_map(
-							function ( $author ) {
-								return ( ( empty( $author['first_name'] ) ? '' : $author['first_name'] . ' ' ) ) . ( $author['last_name'] ?? '' );
-							},
-							$article['authors']
-						)
-					)
-				) > 0;
+				$contains_author = false;
+				foreach ( $authors as $author ) {
+					foreach ( $article['authors'] as $author_in_article ) {
+						if ( empty( $author_in_article['last_name'] ) ) {
+							break;
+						}
+						if (
+							stripos(
+								$author,
+								preg_replace( '/(^|\s)[A-Z]\.(\s|$)/', '', $author_in_article['first_name'] ?? '' )
+							) !== false
+							&&
+							stripos(
+								$author,
+								preg_replace( '/(^|\s)[A-Z]\.(\s|$)/', '', $author_in_article['last_name'] )
+							) !== false
+						) {
+							$contains_author = true;
+						}
+					}
+					if ( $contains_author ) {
+						break;
+					}
+				}
+				return $contains_author;
 			}
 		);
 	}
