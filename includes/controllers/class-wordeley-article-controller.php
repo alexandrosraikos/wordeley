@@ -312,7 +312,7 @@ class Wordeley_Article_Controller {
 	 * @return array|void The newly updated article cache.
 	 */
 	public static function update_article_cache( bool $return ) {
-		$articles = self::retrieve_articles();
+		$articles = self::filter_articles_by_author(self::retrieve_articles(), Wordeley_Author_Controller::get_authors());
 
 		// Prepare filesystem access.
 		global $wp_filesystem;

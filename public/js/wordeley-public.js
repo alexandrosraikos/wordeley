@@ -153,8 +153,7 @@ function requestFilteredArticles(e) {
     var formData = new FormData(e.target);
 
     // Read page value and use intact.
-    var page = $(".wordeley-article-catalogue-pagination .active").html() ?? 1;
-    formData.append("article-page", page);
+    formData.append("article-page", 1);
 
     makeWPRequest(
         ".wordeley-article-catalogue",
@@ -163,6 +162,7 @@ function requestFilteredArticles(e) {
         formData,
         (articlesHTML) => {
             $(".wordeley-article-catalogue").replaceWith(articlesHTML);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     );
 }
@@ -199,6 +199,7 @@ $(document).ready(() => {
             formData,
             (articlesHTML) => {
                 $(".wordeley-article-catalogue").replaceWith(articlesHTML);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         );
     });
