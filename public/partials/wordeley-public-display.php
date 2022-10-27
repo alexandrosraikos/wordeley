@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Provide a public-facing view for the plugin
  *
@@ -27,23 +28,23 @@
  */
 function article_filters_html(
     array $author_information,
-    string $query=null,
+    string $query = null,
     int $oldest_year,
     int $current_year,
-    int $start_year=null,
-    int $end_year=null,
-    int $page_size=null
+    int $start_year = null,
+    int $end_year = null,
+    int $page_size = null
 ) {
-    if ( empty( $author_information ) || empty( $author_information[0] ) ) {
-        return show_alert( 'No authors were configured.' );
+    if (empty($author_information) || empty($author_information[0])) {
+        return show_alert('No authors were configured.');
     } else {
 
         // Author values.
-        $checkboxes='';
+        $checkboxes = '';
 
-        foreach ( $author_information as $author ) {
-            $checked=$author['selected'] ? 'checked' : '';
-            $author_article_count_label=$author['selected'] ? ' (' . $author['article_count'] . ')' : '';
+        foreach ($author_information as $author) {
+            $checked = $author['selected'] ? 'checked' : '';
+            $author_article_count_label = $author['selected'] ? ' (' . $author['article_count'] . ')' : '';
             $checkboxes .= <<<HTML
                 <label class="wordeley-article-catalogue-filters-author">
                     <input type="checkbox" name="authors[]" value="{$author['name']}" id="" {$checked} /> {$author['name']}{$author_article_count_label}
@@ -52,30 +53,30 @@ function article_filters_html(
         }
 
         // Page size selector options.
-        $page_size_options=[ 15, 25, 50 ];
-        $page_size_options_html='';
-        $page_size_options_count=count( $page_size_options );
+        $page_size_options = [15, 25, 50];
+        $page_size_options_html = '';
+        $page_size_options_count = count($page_size_options);
 
-        for ( $j=0; $j <= $page_size_options_count - 1; $j++ ) {
-            $selected=( ( $page_size ) === $page_size_options[ $j ] ) ? 'selected' : '';
+        for ($j = 0; $j <= $page_size_options_count - 1; $j++) {
+            $selected = (($page_size) === $page_size_options[$j]) ? 'selected' : '';
             $page_size_options_html .= <<<HTML
             <option value="{$page_size_options[$j]}" {$selected}>{$page_size_options[$j]}</option>
             HTML;
         }
 
         // Labels.
-        $search_label=__( 'Search', 'wordeley' );
-        $search_placeholder_label=__( 'Type a search term', 'wordeley' );
-        $authors_label=__( 'Authors', 'wordeley' );
-        $years_label=__( 'Years', 'wordeley' );
-        $years_from_label=__( 'From', 'wordeley' );
-        $years_to_label=__( 'To', 'wordeley' );
-        $view_label=__( 'View', 'wordeley' );
-        $articles_per_page_label=__( 'Articles per page', 'wordeley' );
-        $submit_label=__( 'Submit', 'wordeley' );
+        $search_label = __('Search', 'wordeley');
+        $search_placeholder_label = __('Type a search term', 'wordeley');
+        $authors_label = __('Authors', 'wordeley');
+        $years_label = __('Years', 'wordeley');
+        $years_from_label = __('From', 'wordeley');
+        $years_to_label = __('To', 'wordeley');
+        $view_label = __('View', 'wordeley');
+        $articles_per_page_label = __('Articles per page', 'wordeley');
+        $submit_label = __('Submit', 'wordeley');
 
-        $start_year=empty( $start_year ) ? '' : $start_year;
-        $end_year=empty( $end_year ) ? '' : $end_year;
+        $start_year = empty($start_year) ? '' : $start_year;
+        $end_year = empty($end_year) ? '' : $end_year;
 
         // Print form.
         return <<<HTML
@@ -119,43 +120,44 @@ function article_filters_html(
  *
  * @return string the article list HTML
  */
-function article_list_html( array $articles=[] ) {
-    if ( empty( $articles ) ) {
-        return show_alert( 'No articles were found matching your criteria.', 'notice' );
+function article_list_html(array $articles = [])
+{
+    if (empty($articles)) {
+        return show_alert('No articles were found matching your criteria.', 'notice');
     } else {
-        $list='';
+        $list = '';
 
-        foreach ( $articles as $article ) {
-            $authors='';
+        foreach ($articles as $article) {
+            $authors = '';
 
-            foreach ( $article['authors'] as $key => $author ) {
-                if ( ! empty( $author['first_name'] ) && ! empty( $author['last_name'] ) ) {
-                    if ( ! empty( $author['scopus_author_id'] ) ) {
+            foreach ($article['authors'] as $key => $author) {
+                if (!empty($author['first_name']) && !empty($author['last_name'])) {
+                    if (!empty($author['scopus_author_id'])) {
                         $authors .= <<<HTML
-                        <a href="https://www.scopus.com/authid/detail.uri?authorId={$author['scopus_author_id']}">{$author['first_name']} {$author['last_name']}</a>
+                        <a href="https://www.scopus.com/authid/detail.uri?authorId={$author['scopus_author_id']}" target="blank">{$author['first_name']} {$author['last_name']}</a>
                     HTML;
                     } else {
                         $authors .= $author['first_name'] . ' ' . $author['last_name'];
                     }
                 }
 
-                if ( count( $article['authors'] ) !== $key ) {
+                if (count($article['authors']) !== $key) {
                     $authors .= ', ';
                 }
             }
 
-            $source_label=__( 'Source', 'wordeley' );
+            $source_label = __('Source', 'wordeley');
 
-            $metadata_source=( ! empty( $article['source'] ) ) ? <<<HTML
+            $metadata_source = (!empty($article['source'])) ? <<<HTML
                 <span class="source"><span class="label">{$source_label}:</span> {$article['source']}</span>
                 HTML : '';
-            $metadata_doi=( ! empty( $article['identifiers']['doi'] ) ) ? <<<HTML
+            $metadata_doi = (!empty($article['identifiers']['doi'])) ? <<<HTML
                 <span class="doi"><span class="label">DOI:</span> {$article['identifiers']['doi']}</span>
                 HTML : '';
 
-            $view_more_label=__( 'View more information', 'wordeley' );
-            $authors_label=__( 'Authors', 'wordeley' );
-            $year_label=__( 'Year', 'wordeley' );
+            $view_more_label = __('View more information', 'wordeley');
+            $authors_label = __('Authors', 'wordeley');
+            $year_label = __('Year', 'wordeley');
             $list .= <<<HTML
                 <li>
                     <h3>{$article['title']}</h3>
@@ -198,20 +200,20 @@ function article_list_html( array $articles=[] ) {
  * @return string the HTML article filters
  */
 function catalogue_shortcode_html(
-    array $articles=null,
-    array $author_information=null,
-    string $query=null,
+    array $articles = null,
+    array $author_information = null,
+    string $query = null,
     int $oldest_year,
     int $current_year,
-    int $start_year=null,
-    int $end_year=null,
+    int $start_year = null,
+    int $end_year = null,
     int $page_size,
     int $page,
     int $total_articles,
     int $total_pages
 ) {
-    $list=article_list_html( $articles ?? null );
-    $filters=article_filters_html(
+    $list = article_list_html($articles ?? null);
+    $filters = article_filters_html(
         $author_information,
         $query,
         $oldest_year,
@@ -223,23 +225,23 @@ function catalogue_shortcode_html(
 
     // Append page selector.
     global $wp;
-    $page_selector='';
-    $current_url=home_url( $wp->request );
+    $page_selector = '';
+    $current_url = home_url($wp->request);
 
-    for ( $i=1; $i < $total_pages; $i++ ) {
-        $page_url=$current_url . '?article-page=' . $i;
-        $html_class=( $page == $i ) ? 'active' : '';
+    for ($i = 1; $i < $total_pages; $i++) {
+        $page_url = $current_url . '?article-page=' . $i;
+        $html_class = ($page == $i) ? 'active' : '';
         $page_selector .= <<<HTML
             <li><a href="{$page_url}" class="{$html_class}" wordeley-article-page="$i">$i</a></li>
         HTML;
     }
-    $page_selector=<<<HTML
+    $page_selector = <<<HTML
         <ul class="wordeley-article-catalogue-pagination">
             {$page_selector}
         </ul>
     HTML;
 
-    $total_articles_label=__( 'total articles', 'wordeley' );
+    $total_articles_label = __('total articles', 'wordeley');
 
     return <<<HTML
         <div class="wordeley-article-catalogue">
@@ -270,6 +272,7 @@ function catalogue_shortcode_html(
  * @param string $message the message to be shown
  * @param string $type    the type of message, a 'notice' or an 'error'
  */
-function show_alert( string $message, string $type='error' ) {
+function show_alert(string $message, string $type = 'error')
+{
     return '<div class="wordeley-alert" type="' . $type . '">' . $message . '</div>';
 }

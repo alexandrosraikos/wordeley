@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The file that defines the core plugin author controller class
  *
@@ -20,7 +21,8 @@
  * @subpackage Wordeley/includes/controllers
  * @author     Alexandros Raikos <alexandros@araikos.gr>
  */
-class Wordeley_Author_Controller {
+class Wordeley_Author_Controller
+{
 
 	/**
 	 * The names of selected authors.
@@ -36,7 +38,8 @@ class Wordeley_Author_Controller {
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		$this->authors = self::get_authors();
 	}
 
@@ -48,13 +51,14 @@ class Wordeley_Author_Controller {
 	 * @param array $selected_articles A custom array of articles.
 	 * @return array The author information table in [name:string, selected:bool, article_count:int] format.
 	 */
-	public function get_information_table( array $selected_authors, array $selected_articles ): array {
+	public function get_information_table(array $selected_authors, array $selected_articles): array
+	{
 		return array_map(
-			function ( $author ) use ( $selected_authors, $selected_articles ) {
+			function ($author) use ($selected_authors, $selected_articles) {
 				return array(
 					'name'          => $author,
-					'selected'      => in_array( $author, $selected_authors, true ),
-					'article_count' => Wordeley_Article_Controller::count_articles_by_author( $selected_articles, $author ),
+					'selected'      => in_array($author, $selected_authors, true),
+					'article_count' => Wordeley_Article_Controller::count_articles_by_author($selected_articles, $author),
 				);
 			},
 			$this->authors
@@ -67,18 +71,37 @@ class Wordeley_Author_Controller {
 	 * @since 1.0.0
 	 * @return array The array of authors.
 	 */
-	public static function get_authors(): array {
-		$option  = get_option( 'wordeley_plugin_settings' );
+	public static function get_authors(): array
+	{
+		$option  = get_option('wordeley_plugin_settings');
 		$authors = $option['article_authors'] ?? '';
 		// Parse comma separated authors string.
 		return array_map(
-			function ( $author ) {
-				return ltrim( rtrim( $author ) );
+			function ($author) {
+				return ltrim(rtrim($author));
 			},
 			explode(
 				',',
-				get_option( 'wordeley_plugin_settings' )['article_authors'] ?? ''
+				get_option('wordeley_plugin_settings')['article_authors'] ?? ''
 			)
 		);
+	}
+
+	public static function contains_initial($article_author): bool
+	{
+		if (is_array($article_author)) {
+			return preg_match(
+				'/(^|\s)[A-Z]\.(\s|$)/',
+				$article_author['first_name'] ?? ''
+			) === 1 || preg_match(
+				'/(^|\s)[A-Z]\.(\s|$)/',
+				$article_author['last_name']
+			) === 1;
+		} elseif (is_string($article_author)) {
+			return preg_match(
+				'/(^|\s)[A-Z]\.(\s|$)/',
+				$article_author
+			) === 1;
+		}
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The file that defines the core plugin article controller class
  *
@@ -12,7 +13,8 @@
 /**
  * The controller of article data.
  */
-class Wordeley_Article_Controller {
+class Wordeley_Article_Controller
+{
 
 	/**
 	 * The default page size for article arrays.
@@ -61,12 +63,13 @@ class Wordeley_Article_Controller {
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		// Get all articles.
 		$this->articles = self::get_articles();
 
 		// Get year values.
-		$this->current_year = intval( gmdate( 'Y' ) );
+		$this->current_year = intval(gmdate('Y'));
 	}
 
 	/**
@@ -76,7 +79,8 @@ class Wordeley_Article_Controller {
 	 *
 	 * @since 1.0.0
 	 */
-	public function reset_articles() {
+	public function reset_articles()
+	{
 		$this->articles = self::get_articles();
 	}
 
@@ -99,8 +103,8 @@ class Wordeley_Article_Controller {
 		$page_size ??= self::$default_page_size;
 
 		// Split and return.
-		$starting_index = $page_size * ( $page - 1 );
-		return array_slice( $this->articles, $starting_index, $page_size );
+		$starting_index = $page_size * ($page - 1);
+		return array_slice($this->articles, $starting_index, $page_size);
 	}
 
 	/**
@@ -112,9 +116,10 @@ class Wordeley_Article_Controller {
 	 * @param int|null $page_size The number of articles in the page.
 	 * @return int The page count.
 	 */
-	public function total_pages( int $page_size = null ): int {
+	public function total_pages(int $page_size = null): int
+	{
 		$page_size ??= self::$default_page_size;
-		return ceil( count( $this->articles ) / $page_size );
+		return ceil(count($this->articles) / $page_size);
 	}
 
 	/**
@@ -138,10 +143,10 @@ class Wordeley_Article_Controller {
 	) {
 		$authors  ??= Wordeley_Author_Controller::get_authors();
 		$end_year ??= $this->current_year;
-		if ( empty( $start_year ) ) {
+		if (empty($start_year)) {
 			$start_year = self::$earliest_year;
 		}
-		if ( empty( $end_year ) ) {
+		if (empty($end_year)) {
 			$end_year = $this->current_year;
 		}
 
@@ -171,13 +176,26 @@ class Wordeley_Article_Controller {
 	public static function filter_articles_by_term(
 		array $articles,
 		string $query = null
-		) {
-		if ( ! empty( $query ) ) {
+	) {
+		if (!empty($query)) {
 			return array_filter(
 				$articles,
-				function ( $article ) use ( $query ) {
-					$search_result = stripos( $article['title'], $query );
-					return false !== $search_result;
+				function ($article) use ($query) {
+					$stringified_authors = implode(
+						', ',
+						array_map(
+							function ($author) {
+								return implode(' ', $author);
+							},
+							$article['authors']
+						)
+					);
+					// Search by term.
+					return false !== stripos($article['title'], $query) ||
+						false !== stripos($stringified_authors ?? '', $query) ||
+						false !== stripos($article['source'] ?? '', $query) ||
+						false !== stripos($article['identifiers']['doi'] ?? '', $query) ||
+						false !== stripos($article['identifiers']['issn'] ?? '', $query);
 				}
 			);
 		} else {
@@ -197,31 +215,22 @@ class Wordeley_Article_Controller {
 	public static function filter_articles_by_author(
 		array $articles,
 		array $authors
-		): array {
+	): array {
 		return array_filter(
 			$articles,
-			function ( $article ) use ( $authors ) {
+			function ($article) use ($authors) {
 				$contains_author = false;
-				foreach ( $authors as $author ) {
-					foreach ( $article['authors'] as $author_in_article ) {
-						if ( empty( $author_in_article['last_name'] ) ) {
+				foreach ($authors as $author_full_name) {
+					foreach ($article['authors'] as $article_author) {
+						if (empty($article_author['last_name'])) {
 							break;
 						}
-						if (
-							stripos(
-								$author,
-								preg_replace( '/(^|\s)[A-Z]\.(\s|$)/', '', $author_in_article['first_name'] ?? '' )
-							) !== false
-							&&
-							stripos(
-								$author,
-								preg_replace( '/(^|\s)[A-Z]\.(\s|$)/', '', $author_in_article['last_name'] )
-							) !== false
-						) {
-							$contains_author = true;
-						}
+						$combined_name = (!empty($article_author['first_name'])
+							? ($article_author['first_name'] . ' ')
+							: '') . $article_author['last_name'];
+						$contains_author = $author_full_name === $combined_name;
 					}
-					if ( $contains_author ) {
+					if ($contains_author) {
 						break;
 					}
 				}
@@ -243,10 +252,10 @@ class Wordeley_Article_Controller {
 		array $articles,
 		int $start_year,
 		int $end_year
-		) {
+	) {
 		return array_filter(
 			$articles,
-			function ( $article ) use ( $start_year, $end_year ) {
+			function ($article) use ($start_year, $end_year) {
 				return $article['year'] >= $start_year && $article['year'] <= $end_year;
 			}
 		);
@@ -263,21 +272,21 @@ class Wordeley_Article_Controller {
 	public static function get_year(
 		array $articles,
 		bool $newest
-		): int {
+	): int {
 		try {
 			$years = array_map(
-				function ( $article ) {
+				function ($article) {
 					return $article['year'];
 				},
 				$articles
 			);
-			if ( $newest ) {
-				rsort( $years );
+			if ($newest) {
+				rsort($years);
 			} else {
-				sort( $years );
+				sort($years);
 			}
 			return $years[0];
-		} catch ( \Exception $e ) {
+		} catch (\Exception $e) {
 			return self::$earliest_year;
 		}
 	}
@@ -290,8 +299,9 @@ class Wordeley_Article_Controller {
 	 * @param string $author An author name.
 	 * @return int The article count.
 	 */
-	public static function count_articles_by_author( array $articles, string $author ): int {
-		return count( self::filter_articles_by_author( $articles, array( $author ) ) );
+	public static function count_articles_by_author(array $articles, string $author): int
+	{
+		return count(self::filter_articles_by_author($articles, array($author)));
 	}
 
 	/**
@@ -300,8 +310,9 @@ class Wordeley_Article_Controller {
 	 * @since 1.0.0
 	 * @return bool Whether the cache exists.
 	 */
-	private static function cache_exists(): bool {
-		return is_file( WORDELEY_FILE_STORE . '/articles.json' );
+	private static function cache_exists(): bool
+	{
+		return is_file(WORDELEY_FILE_STORE . '/articles.json');
 	}
 
 	/**
@@ -311,7 +322,8 @@ class Wordeley_Article_Controller {
 	 * @param bool $return True to return article cache.
 	 * @return array|void The newly updated article cache.
 	 */
-	public static function update_article_cache( bool $return ) {
+	public static function update_article_cache(bool $return)
+	{
 		$articles = self::filter_articles_by_author(self::retrieve_articles(), Wordeley_Author_Controller::get_authors());
 
 		// Prepare filesystem access.
@@ -320,16 +332,16 @@ class Wordeley_Article_Controller {
 
 		// Clear old cache and save new content.
 		self::delete_article_cache();
-		if ( ! file_exists( WORDELEY_FILE_STORE ) ) {
-			mkdir( WORDELEY_FILE_STORE, 0777, true );
+		if (!file_exists(WORDELEY_FILE_STORE)) {
+			mkdir(WORDELEY_FILE_STORE, 0777, true);
 		}
 		$wp_filesystem->put_contents(
 			WORDELEY_FILE_STORE . '/articles.json',
-			wp_json_encode( $articles ),
+			wp_json_encode($articles),
 			0644
 		);
 
-		if ( $return ) {
+		if ($return) {
 			return $articles;
 		}
 	}
@@ -340,9 +352,10 @@ class Wordeley_Article_Controller {
 	 * @since 1.0.0
 	 * @return bool True on success, False on failure.
 	 */
-	public static function delete_article_cache(): bool {
-		if ( self::cache_exists() ) {
-			return unlink( WORDELEY_FILE_STORE . '/articles.json' );
+	public static function delete_article_cache(): bool
+	{
+		if (self::cache_exists()) {
+			return unlink(WORDELEY_FILE_STORE . '/articles.json');
 		}
 		return true;
 	}
@@ -354,9 +367,10 @@ class Wordeley_Article_Controller {
 	 * @access private
 	 * @return array The array of articles stored in the plugin's cache.
 	 */
-	private static function get_cache(): array {
+	private static function get_cache(): array
+	{
 		return json_decode(
-			file_get_contents( WORDELEY_FILE_STORE . '/articles.json' ),
+			file_get_contents(WORDELEY_FILE_STORE . '/articles.json'),
 			true
 		);
 	}
@@ -372,22 +386,23 @@ class Wordeley_Article_Controller {
 	 * @access private
 	 * @return array The array of newly retrieved articles.
 	 */
-	private static function retrieve_articles() {
+	private static function retrieve_articles()
+	{
 		$articles          = array();
 		$author_controller = new Wordeley_Author_Controller();
 
-		foreach ( $author_controller->authors as $author ) {
+		foreach ($author_controller->authors as $author) {
 			$blank_year_limit = 2;
-			$start_year       = intval( gmdate( 'Y' ) );
-			while ( $blank_year_limit >= 0 ) {
+			$start_year       = intval(gmdate('Y'));
+			while ($blank_year_limit >= 0) {
 				$response = Wordeley_Communication_Controller::api_request(
 					'GET',
-					'/search/catalog?author=' . rawurlencode( $author ) . '&limit=100&min_year=' . $start_year . '&max_year=' . $start_year
+					'/search/catalog?author=' . rawurlencode($author) . '&limit=100&min_year=' . $start_year . '&max_year=' . $start_year
 				);
-				if ( empty( $response ) ) {
+				if (empty($response)) {
 					--$blank_year_limit;
 				} else {
-					$articles = array_merge( $articles, $response );
+					$articles = array_merge($articles, $response);
 				}
 				--$start_year;
 			}
@@ -407,11 +422,12 @@ class Wordeley_Article_Controller {
 	 * @access private
 	 * @return array The array of articles.
 	 */
-	private function get_articles(): array {
-		$articles = self::cache_exists() ? self::get_cache() : self::update_article_cache( true );
+	private function get_articles(): array
+	{
+		$articles = self::cache_exists() ? self::get_cache() : self::update_article_cache(true);
 		usort(
 			$articles,
-			function ( $a, $b ) {
+			function ($a, $b) {
 				return $a['year'] < $b['year'];
 			}
 		);

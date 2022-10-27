@@ -75,8 +75,8 @@ msgstr "Κάντε κλικ για να εκκαθαρίσετε την κρυφ
 msgid "Refresh cache automatically"
 msgstr "Ανανέωση κρυφής μνήμης άρθρων αυτόματα"
 
-msgid "The cache will be automatically refreshed every 30 days."
-msgstr "Η κρυφή μνήμη άρθρων ανανεώνεται αυτόματα κάθε 30 ημέρες."
+msgid "The cache will be automatically refreshed every 15 days."
+msgstr "Η κρυφή μνήμη άρθρων ανανεώνεται αυτόματα κάθε 15 ημέρες."
 
 # Public
 

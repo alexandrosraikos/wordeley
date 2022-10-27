@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The file that defines the core plugin class
  *
@@ -26,7 +27,8 @@
  * @subpackage Wordeley/includes
  * @author     Alexandros Raikos <alexandros@araikos.gr>
  */
-class Wordeley {
+class Wordeley
+{
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
 	 * the plugin.
@@ -64,17 +66,18 @@ class Wordeley {
 	 *
 	 * @since    1.0.0
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		$this->plugin_name = 'wordeley';
-		if ( defined( 'WORDELEY_VERSION' ) ) {
+		if (defined('WORDELEY_VERSION')) {
 			$this->version = WORDELEY_VERSION;
 		} else {
 			$this->version = '1.0.0';
 		}
-		if ( ! defined( 'WORDLEY_FILE_STORE' ) ) {
-			define( 'WORDELEY_FILE_STORE', trailingslashit( wp_upload_dir()['basedir'] ) . 'wordeley/' );
+		if (!defined('WORDLEY_FILE_STORE')) {
+			define('WORDELEY_FILE_STORE', trailingslashit(wp_upload_dir()['basedir']) . 'wordeley/');
 		}
 		$this->load_dependencies();
 		$this->set_locale();
@@ -98,37 +101,38 @@ class Wordeley {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function load_dependencies() {
+	private function load_dependencies()
+	{
 
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wordeley-loader.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wordeley-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wordeley-i18n.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wordeley-i18n.php';
 
 		/**
 		 * The controllers classes responsible for Mendeley related actions.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/controllers/class-wordeley-communication-controller.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/controllers/class-wordeley-author-controller.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/controllers/class-wordeley-article-controller.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/controllers/class-wordeley-communication-controller.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/controllers/class-wordeley-author-controller.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/controllers/class-wordeley-article-controller.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wordeley-admin.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-wordeley-admin.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wordeley-public.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-wordeley-public.php';
 
 		$this->loader = new Wordeley_Loader();
 	}
@@ -142,11 +146,12 @@ class Wordeley {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function set_locale() {
+	private function set_locale()
+	{
 
 		$plugin_i18n = new Wordeley_I18n();
 
-		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
+		$this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
 	}
 
 	/**
@@ -156,46 +161,47 @@ class Wordeley {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_admin_hooks() {
+	private function define_admin_hooks()
+	{
 
-		$plugin_admin = new Wordeley_Admin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin = new Wordeley_Admin($this->get_plugin_name(), $this->get_version());
 
 		/**
 		 * Add the settings pages.
 		 */
-		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_settings_page' );
-		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_settings' );
+		$this->loader->add_action('admin_menu', $plugin_admin, 'add_settings_page');
+		$this->loader->add_action('admin_init', $plugin_admin, 'register_settings');
 
 		/**
 		 * Enqueue all admin-related scripts and stylesheets.
 		 */
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
+		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 
 		/**
 		 * Add all AJAX handlers.
 		 */
-		$this->loader->add_action( 'wp_ajax_wordeley_generate_access_token', $plugin_admin, 'generate_access_token' );
-		$this->loader->add_action( 'wp_ajax_wordeley_refresh_cache', $plugin_admin, 'refresh_cache_handler' );
-		$this->loader->add_action( 'wp_ajax_wordeley_clear_cache', $plugin_admin, 'clear_cache_handler' );
+		$this->loader->add_action('wp_ajax_wordeley_generate_access_token', $plugin_admin, 'generate_access_token');
+		$this->loader->add_action('wp_ajax_wordeley_refresh_cache', $plugin_admin, 'refresh_cache_handler');
+		$this->loader->add_action('wp_ajax_wordeley_clear_cache', $plugin_admin, 'clear_cache_handler');
 
 		/**
 		 * Hook all cron-based jobs and define schedules.
 		 */
-		$this->loader->add_action( 'wordeley_refresh_cache_cron_handler_hook', $plugin_admin, 'refresh_cache_handler' );
+		$this->loader->add_action('wordeley_refresh_cache_cron_handler_hook', $plugin_admin, 'refresh_cache_handler');
 
 		add_filter(
 			'cron_schedules',
-			function ( $schedules ) {
+			function ($schedules) {
 				$schedules['monthly'] = array(
-					'interval' => 2592000,
+					'interval' => 1296000,
 					'display'  => 'Every month.',
 				);
 				return $schedules;
 			}
 		);
-		if ( ! wp_next_scheduled( 'wordeley_refresh_cache_cron_handler_hook' ) ) {
-			wp_schedule_event( time(), 'monthly', 'wordeley_refresh_cache_cron_handler_hook' );
+		if (!wp_next_scheduled('wordeley_refresh_cache_cron_handler_hook')) {
+			wp_schedule_event(time(), 'monthly', 'wordeley_refresh_cache_cron_handler_hook');
 		}
 	}
 
@@ -206,26 +212,27 @@ class Wordeley {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_public_hooks() {
+	private function define_public_hooks()
+	{
 
-		$plugin_public = new Wordeley_Public( $this->get_plugin_name(), $this->get_version() );
+		$plugin_public = new Wordeley_Public($this->get_plugin_name(), $this->get_version());
 
 		/**
 		 * Enqueue all public-facing scripts and stylesheets.
 		 */
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
+		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 
 		/**
 		 * Register all shortcodes.
 		 */
-		$this->loader->add_action( 'init', $plugin_public, 'register_shortcodes' );
+		$this->loader->add_action('init', $plugin_public, 'register_shortcodes');
 
 		/**
 		 * Add all AJAX handlers.
 		 */
-		$this->loader->add_action( 'wp_ajax_wordeley_get_articles', $plugin_public, 'Wordeley_Public::catalogue_shortcode' );
-		$this->loader->add_action( 'wp_ajax_nopriv_wordeley_get_articles', $plugin_public, 'Wordeley_Public::catalogue_shortcode' );
+		$this->loader->add_action('wp_ajax_wordeley_get_articles', $plugin_public, 'Wordeley_Public::catalogue_shortcode');
+		$this->loader->add_action('wp_ajax_nopriv_wordeley_get_articles', $plugin_public, 'Wordeley_Public::catalogue_shortcode');
 	}
 
 	/**
@@ -233,7 +240,8 @@ class Wordeley {
 	 *
 	 * @since    1.0.0
 	 */
-	public function run() {
+	public function run()
+	{
 		$this->loader->run();
 	}
 
@@ -244,7 +252,8 @@ class Wordeley {
 	 * @since     1.0.0
 	 * @return    string    The name of the plugin.
 	 */
-	public function get_plugin_name() {
+	public function get_plugin_name()
+	{
 		return $this->plugin_name;
 	}
 
@@ -254,7 +263,8 @@ class Wordeley {
 	 * @since     1.0.0
 	 * @return    Wordeley_Loader    Orchestrates the hooks of the plugin.
 	 */
-	public function get_loader() {
+	public function get_loader()
+	{
 		return $this->loader;
 	}
 
@@ -264,7 +274,8 @@ class Wordeley {
 	 * @since     1.0.0
 	 * @return    string    The version number of the plugin.
 	 */
-	public function get_version() {
+	public function get_version()
+	{
 		return $this->version;
 	}
 }
