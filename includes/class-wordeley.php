@@ -195,7 +195,7 @@ class Wordeley
 			function ($schedules) {
 				$schedules['monthly'] = array(
 					'interval' => 1296000,
-					'display'  => 'Every month.',
+					'display'  => 'Every 15 days.',
 				);
 				return $schedules;
 			}
