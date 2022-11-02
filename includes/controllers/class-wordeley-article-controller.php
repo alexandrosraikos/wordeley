@@ -220,15 +220,24 @@ class Wordeley_Article_Controller
 			$articles,
 			function ($article) use ($authors) {
 				$contains_author = false;
-				foreach ($authors as $author_full_name) {
-					foreach ($article['authors'] as $article_author) {
-						if (empty($article_author['last_name'])) {
+				foreach ($authors as $author) {
+					foreach ($article['authors'] as $author_in_article) {
+						if (empty($author_in_article['last_name'])) {
 							break;
 						}
-						$combined_name = (!empty($article_author['first_name'])
-							? ($article_author['first_name'] . ' ')
-							: '') . $article_author['last_name'];
-						$contains_author = $author_full_name === $combined_name;
+						if (
+							stripos(
+								$author,
+								preg_replace('/(^|\s)[A-Z]\.(\s|$)/', '', $author_in_article['first_name'] ?? '')
+							) !== false
+							&&
+							stripos(
+								$author,
+								preg_replace('/(^|\s)[A-Z]\.(\s|$)/', '', $author_in_article['last_name'])
+							) !== false
+						) {
+							$contains_author = true;
+						}
 					}
 					if ($contains_author) {
 						break;
@@ -238,6 +247,7 @@ class Wordeley_Article_Controller
 			}
 		);
 	}
+
 
 	/**
 	 * Filter by a specific year range.
